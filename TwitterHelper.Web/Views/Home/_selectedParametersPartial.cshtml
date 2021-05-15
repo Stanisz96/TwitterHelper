@@ -1,0 +1,25 @@
+﻿@model IEnumerable<Parameter>
+
+@{ 
+    int twitterObjectid = Int32.Parse(ViewData["TwitterObjectId"].ToString());
+    List<Parameter> Parameters = Model.Where(p => p.TwitterObjectId == twitterObjectid).ToList();
+}
+
+<span class="badge badge-secondary">id</span>
+@if (twitterObjectid <= 2)
+{
+    <span class="badge badge-secondary">name</span>
+    <span class="badge badge-secondary">username</span>
+}
+else
+{
+    <span class="badge badge-secondary">text</span>
+}
+
+@foreach (Parameter p in Parameters)
+{
+    @if (p.Selected)
+    {
+        <span class="badge badge-info">@p.Value</span>
+    }
+}

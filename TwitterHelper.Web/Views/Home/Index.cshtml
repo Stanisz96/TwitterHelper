@@ -1,7 +1,291 @@
-﻿@{
+﻿@model IEnumerable<Parameter>
+
+@{
     ViewData["Title"] = "Home Page";
+    string userStatus = TempData["userStatus"] != null ? TempData["userStatus"].ToString() : "";
+    string usersStatus = TempData["usersStatus"] != null ? TempData["usersStatus"].ToString() : "";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
+    <h1 class="display-4">Welcome to Twitter API Helper!</h1>
+    <button type="button"
+            class="btn btn-success btn-lg">
+        Get data
+    </button>
 </div>
+
+<div class="row">
+    <div class="col-sm-6">
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5 class="card-title">1. Get random user</h5>
+                <p class="card-text">
+                    Get data of random user. Set conditions that has to be met and choose
+                    user fields that will be included in data.
+                </p>
+                <p>Selected parameters:</p>
+                <div id="userParametersPartial" class="m-4">
+                    @await Html.PartialAsync("_selectedParametersPartial", Model, new ViewDataDictionary(ViewData) { { "TwitterObjectId", 1 } })
+                </div>
+                <button type="button"
+                        class="btn btn-primary"
+                        data-toggle="modal"
+                        data-target="#userParametersModal">
+                    Parameters
+                </button>  
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5 class="card-title">3. Get users, that selected user follows</h5>
+                <p class="card-text">
+                    Get data of all users, that selected user follows.
+                    Choose user fields that will be included in data.
+                </p>
+                <p>Selected parameters:</p>
+                <div id="usersParametersPartial" class="m-4">
+                    @await Html.PartialAsync("_selectedParametersPartial", Model, new ViewDataDictionary(ViewData) { { "TwitterObjectId", 2 } })
+                </div>
+                <button type="button"
+                        class="btn btn-primary"
+                        data-toggle="modal"
+                        data-target="#usersParametersModal">
+                    Parameters
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-6">
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5 class="card-title">2. Get tweets of selected user</h5>
+                <p class="card-text">
+                    Get tweets data of selected user. Choose tweet fields that will be
+                    included in data.
+                </p>
+                <p>Selected parameters:</p>
+                <div id="tweetParametersPartial" class="m-4">
+                    @await Html.PartialAsync("_selectedParametersPartial", Model, new ViewDataDictionary(ViewData) { { "TwitterObjectId", 3 } })
+                </div>
+                <button type="button"
+                        class="btn btn-primary"
+                        data-toggle="modal"
+                        data-target="#tweetParametersModal">
+                    Parameters
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5 class="card-title">4. Get tweets of selected users</h5>
+                <p class="card-text">
+                    Get tweets of all users that selected user follows.
+                    Choose tweet fields that will be included in data.
+                </p>
+                <p>Selected parameters:</p>
+                <div id="tweetsParametersPartial" class="m-4">
+                    @await Html.PartialAsync("_selectedParametersPartial", Model, new ViewDataDictionary(ViewData) { { "TwitterObjectId", 4 } })
+                </div>
+                <button type="button"
+                        class="btn btn-primary"
+                        data-toggle="modal"
+                        data-target="#tweetsParametersModal">
+                    Parameters
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="userParametersModal" tabindex="-1" role="dialog" aria-labelledby="userParametersModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userParametersModalTitle">Select parameters for user</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+            @using (Html.BeginForm("GetUser","Home", FormMethod.Post, new { id = "userParametersForm" }))
+            {
+                <div>
+                    @foreach (Parameter Parameter in Model)
+                    {
+                        if (Parameter.TwitterObjectId == 1)
+                        {
+                            @Html.EditorFor(m => Parameter)
+                        }
+                    }
+                </div>
+            }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="userParametersModalClose">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="usersParametersModal" tabindex="-1" role="dialog" aria-labelledby="usersParametersModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="usersParametersModalTitle">Select parameters for users</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @using (Html.BeginForm("GetUsers", "Home", FormMethod.Post, new { id = "usersParametersForm" }))
+                {
+                    <div>
+                        @foreach (Parameter Parameter in Model)
+                        {
+                            if (Parameter.TwitterObjectId == 2)
+                            {
+                                @Html.EditorFor(m => Parameter)
+                            }
+                        }
+                    </div>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="usersParametersModalClose">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="tweetParametersModal" tabindex="-1" role="dialog" aria-labelledby="tweetParametersModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="tweetParametersModalTitle">Select parameters for tweet</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @using (Html.BeginForm("_selectedParametersPartial", "Home", FormMethod.Post, new { id = "tweetParametersForm" }))
+                {
+                    <div>
+                        @foreach (Parameter Parameter in Model)
+                        {
+                            if (Parameter.TwitterObjectId == 3)
+                            {
+                                @Html.EditorFor(m => Parameter)
+                            }
+                        }
+                    </div>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="tweetParametersModalClose">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="tweetsParametersModal" tabindex="-1" role="dialog" aria-labelledby="tweetsParametersModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="tweetsParametersModalTitle">Select parameters for tweets</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @using (Html.BeginForm("_selectedParametersPartial", "Home", FormMethod.Post, new { id = "tweetsParametersForm" }))
+                {
+                    <div>
+                        @foreach (Parameter Parameter in Model)
+                        {
+                            if (Parameter.TwitterObjectId == 4)
+                            {
+                                @Html.EditorFor(m => Parameter)
+                            }
+                        }
+                    </div>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="tweetsParametersModalClose">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            let userStatus = "@userStatus";
+            if (userStatus == "200") {
+                $("#usersParametersSubmit").prop('disabled', false);
+                $("#tweetParametersSubmit").prop('disabled', false);
+            }
+
+        });
+
+        $('#userParametersModalClose').on('click', function (el) {
+            let data = $("#userParametersForm").serialize();
+            $.ajax({
+                url: "@Url.Action("_selectedParametersPartial", "Home")",
+                type: "POST",
+                data: { "dataString": getParameterData(data), "twitterObjectId": 1 },
+                success: function (result) {
+                    $("#userParametersPartial").html(result);
+                }
+            });
+        });
+
+        $('#usersParametersModalClose').on('click', function (el) {
+            let data = $("#usersParametersForm").serialize();
+            $.ajax({
+                url: "@Url.Action("_selectedParametersPartial", "Home")",
+                type: "POST",
+                data: { "dataString": getParameterData(data), "twitterObjectId": 2 },
+                success: function (result) {
+                    $("#usersParametersPartial").html(result);
+                }
+            });
+        });
+
+        $('#tweetParametersModalClose').on('click', function (el) {
+            let data = $("#tweetParametersForm").serialize();
+            $.ajax({
+                url: "@Url.Action("_selectedParametersPartial", "Home")",
+                type: "POST",
+                data: { "dataString": getParameterData(data), "twitterObjectId": 3 },
+                success: function (result) {
+                    $("#tweetParametersPartial").html(result);
+                }
+            });
+        });
+
+        $('#tweetsParametersModalClose').on('click', function (el) {
+            let data = $("#tweetsParametersForm").serialize();
+            $.ajax({
+                url: "@Url.Action("_selectedParametersPartial", "Home")",
+                type: "POST",
+                data: { "dataString": getParameterData(data), "twitterObjectId": 4 },
+                success: function (result) {
+                    $("#tweetsParametersPartial").html(result);
+                }
+            });
+        });
+
+@*        $("#tweetsParametersSubmit").prop('disabled', false);*@
+@*
+        console.log("@TempData["userId"]");
+        console.log("@TempData["userStatus"]");*@
+
+    </script>
+}

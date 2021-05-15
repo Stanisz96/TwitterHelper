@@ -1,8 +1,12 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using TwitterHelper.Web.Tools;
+using TwitterHelper.Web.Data;
+using TwitterHelper.Web.Models;
 
 namespace TwitterHelper.Web
 {
@@ -17,6 +21,14 @@ namespace TwitterHelper.Web
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<TwitterContext>(options =>
+                    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddDatabaseDeveloperPageExceptionFilter();
+
+            services.AddScoped<IHelper, Helper>();
+            services.AddScoped<ITwitterHelperApi, TwitterHelperApi>();
+
             services.AddControllersWithViews();
         }
 

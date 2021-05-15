@@ -1,38 +1,83 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using TwitterHelper.Web.Data;
 using TwitterHelper.Web.Models;
+using TwitterHelper.Web.Tools;
 
 namespace TwitterHelper.Web.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly ILogger<HomeController> logger;
+        private readonly TwitterContext context;
+        private readonly ITwitterHelperApi twitterApi;
+        private readonly IHelper helper;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(
+                    ILogger<HomeController> logger,
+                    TwitterContext context,
+                    ITwitterHelperApi twitterApi,
+                    IHelper helper)
         {
-            _logger = logger;
+            this.logger = logger;
+            this.context = context;
+            this.twitterApi = twitterApi;
+            this.helper = helper;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            IEnumerable<Models.Parameter> Parameters = await context.Parameters.ToListAsync();
+
+
+            return View(Parameters);
         }
 
-        public IActionResult Privacy()
+
+        [HttpPost]
+        public async Task<IActionResult> _selectedParametersPartial(string[] dataString, int twitterObjectId)
         {
-            return View();
+            List<int> dataArray = new List<int>();
+
+            foreach (string str in dataString)
+            {
+                if (str == "true") dataArray.Add(1);
+                else if (str == "false") dataArray.Add(0);
+                else dataArray.Add(Int32.Parse(str));
+            }
+
+            bool isEven;
+            List<Models.Parameter> parameters = new List<Models.Parameter>();
+            Models.Parameter tempParameter;
+
+            for (int i = 0; i < dataArray.Count; i++)
+            {
+                isEven = i % 2 == 0 ? true : false;
+
+                if (isEven)
+                {
+                    tempParameter = await context.Parameters
+                                    .FirstOrDefaultAsync(p => p.Id == dataArray[i]);
+                    tempParameter.Selected = dataArray[i + 1] == 1 ? true : false;
+                    parameters.Add(tempParameter);
+                }
+
+            }
+            context.UpdateRange(parameters);
+            await context.SaveChangesAsync();
+
+            ViewData["TwitterObjectId"] = twitterObjectId;
+
+            return PartialView(parameters);
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
 
         public async Task<IActionResult> Test()
         {

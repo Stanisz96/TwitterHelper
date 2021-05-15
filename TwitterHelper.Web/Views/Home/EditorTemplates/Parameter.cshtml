@@ -1,0 +1,15 @@
+﻿@model Parameter
+<div>
+@*
+    @Html.HiddenFor(p => p.Value)
+    @Html.HiddenFor(p => p.Text)
+    @Html.HiddenFor(p => p.TwitterObjectId)*@
+    @Html.HiddenFor(p => p.Id)
+    @Html.CheckBoxFor(p => p.Selected)
+    <div class="parameter-value">
+        @Model.Value
+    </div>
+    <div class="parameter-description">
+        @Model.Text
+    </div>
+</div>
