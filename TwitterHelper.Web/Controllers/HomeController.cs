@@ -44,12 +44,13 @@ namespace TwitterHelper.Web.Controllers
         {
             string userId = await this.twitterHelperApi.GetRandomUser();
 
-            if (userId is not null)
+            if (!String.IsNullOrEmpty(userId))
             {
                 IEnumerable<Models.Parameter> Parameters = await context.Parameters.ToListAsync();
+                TempData["testUserId"] = userId;
                 return RedirectToAction("Index", Parameters);
             }
-            
+            TempData["testUserId"] = "NULL!";
             return NotFound();
         }
 

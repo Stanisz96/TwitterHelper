@@ -9,7 +9,8 @@
 <div class="text-center">
     <h1 class="display-4">Welcome to Twitter API Helper!</h1>
     <button type="button"
-            class="btn btn-success btn-lg">
+            class="btn btn-success btn-lg"
+            id="getData">
         Get data
     </button>
 </div>
@@ -281,6 +282,12 @@
                 }
             });
         });
+
+        $('#getData').on('click', function (el) {
+            location.href = '@Url.Action("GetData","Home")';
+
+        });
+        console.log("@TempData["testUserId"]");
 
 @*        $("#tweetsParametersSubmit").prop('disabled', false);*@
 @*

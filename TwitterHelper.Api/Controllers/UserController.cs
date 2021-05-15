@@ -41,7 +41,7 @@ namespace TwitterHelper.Api.Controllers
                 return new EmptyResult();
             }
 
-            return new JsonResult(jsonResponse);
+            return new JsonResult(id);
         }
 
 
