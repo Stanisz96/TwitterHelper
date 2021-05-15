@@ -17,18 +17,18 @@ namespace TwitterHelper.Web.Controllers
     {
         private readonly ILogger<HomeController> logger;
         private readonly TwitterContext context;
-        private readonly ITwitterHelperApi twitterApi;
+        private readonly ITwitterHelperApi twitterHelperApi;
         private readonly IHelper helper;
 
         public HomeController(
                     ILogger<HomeController> logger,
                     TwitterContext context,
-                    ITwitterHelperApi twitterApi,
+                    ITwitterHelperApi twitterHelperApi,
                     IHelper helper)
         {
             this.logger = logger;
             this.context = context;
-            this.twitterApi = twitterApi;
+            this.twitterHelperApi = twitterHelperApi;
             this.helper = helper;
         }
 
@@ -38,6 +38,28 @@ namespace TwitterHelper.Web.Controllers
 
 
             return View(Parameters);
+        }
+
+        public async Task<IActionResult> GetData()
+        {
+
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(this.twitterHelperApi.BaseUrl);
+
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                HttpResponseMessage Res = await client.GetAsync("api/User/43932737");
+
+                if (Res.IsSuccessStatusCode)
+                {
+                    var jsonRes = Res.Content.ReadAsStringAsync().Result;
+                    return View();
+                }
+
+                return NotFound();
+            }
         }
 
 
