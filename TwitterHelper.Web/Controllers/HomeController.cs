@@ -42,24 +42,15 @@ namespace TwitterHelper.Web.Controllers
 
         public async Task<IActionResult> GetData()
         {
+            string userId = await this.twitterHelperApi.GetRandomUser();
 
-            using (var client = new HttpClient())
+            if (userId is not null)
             {
-                client.BaseAddress = new Uri(this.twitterHelperApi.BaseUrl);
-
-                client.DefaultRequestHeaders.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-                HttpResponseMessage Res = await client.GetAsync("api/User/43932737");
-
-                if (Res.IsSuccessStatusCode)
-                {
-                    var jsonRes = Res.Content.ReadAsStringAsync().Result;
-                    return View();
-                }
-
-                return NotFound();
+                IEnumerable<Models.Parameter> Parameters = await context.Parameters.ToListAsync();
+                return RedirectToAction("Index", Parameters);
             }
+            
+            return NotFound();
         }
 
 
