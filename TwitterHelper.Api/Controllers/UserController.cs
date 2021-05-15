@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
@@ -11,10 +12,12 @@ namespace TwitterHelper.Api.Controllers
     public class UserController
     {
         private readonly ITwitterUtils twitterUtils;
+        private readonly IWebHostEnvironment hostingEnv;
 
-        public UserController(ITwitterUtils twitterUtils)
+        public UserController(ITwitterUtils twitterUtils, IWebHostEnvironment hostingEnv)
         {
             this.twitterUtils = twitterUtils;
+            this.hostingEnv = hostingEnv;
         }
 
         [HttpGet("~/api/[controller]/{id}")]
@@ -23,6 +26,8 @@ namespace TwitterHelper.Api.Controllers
             //string userId = "43932737";
 
             this.twitterUtils.Configurate("oauth1", $"/users/{id}", Method.GET);
+
+            string rootPath = this.hostingEnv.ContentRootPath;
 
             /*            List<string> parametersValue = await context.Parameters
                                                 .Where(p => p.Selected == true && p.TwitterObjectId == 1)
