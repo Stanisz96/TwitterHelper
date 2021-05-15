@@ -4,9 +4,7 @@ using RestSharp.Authenticators;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
 using System.Web;
 using TwitterHelper.Api.Models.Configurations;
 
@@ -78,7 +76,7 @@ namespace TwitterHelper.Api.Models
 
         private void setBearerToken()
         {
-            string strBearerRequest = HttpUtility.UrlEncode(this.TwitterConf.ConsumerKey) + 
+            string strBearerRequest = HttpUtility.UrlEncode(this.TwitterConf.ConsumerKey) +
                                         ":" + HttpUtility.UrlEncode(this.TwitterConf.ConsumerSecret);
 
             strBearerRequest = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(strBearerRequest));

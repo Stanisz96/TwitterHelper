@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -42,24 +40,19 @@ namespace TwitterHelper.Web.Controllers
 
             using (var client = new HttpClient())
             {
-                //Passing service base url  
                 client.BaseAddress = new Uri(baseUrl);
 
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-                //Sending request to find web api REST service resource GetDepartments using HttpClient  
                 HttpResponseMessage Res = await client.GetAsync("api/User/43932737");
 
-                //Checking the response is successful or not which is sent using HttpClient  
                 if (Res.IsSuccessStatusCode)
                 {
-
                     var jsonRes = Res.Content.ReadAsStringAsync().Result;
                     return View();
-
                 }
-                //returning the student list to view  
+
                 return NotFound();
             }
         }

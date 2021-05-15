@@ -1,5 +1,3 @@
-using System;
-
 namespace TwitterHelper.Web.Models
 {
     public class ErrorViewModel

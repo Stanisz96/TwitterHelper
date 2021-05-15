@@ -2,10 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using TwitterHelper.Api.Models;
 
 namespace TwitterHelper.Api.Controllers
@@ -27,13 +24,13 @@ namespace TwitterHelper.Api.Controllers
 
             this.twitterUtils.Configurate("oauth1", $"/users/{id}", Method.GET);
 
-/*            List<string> parametersValue = await context.Parameters
-                                    .Where(p => p.Selected == true && p.TwitterObjectId == 1)
-                                    .Select(p => p.Value).ToListAsync();*/
+            /*            List<string> parametersValue = await context.Parameters
+                                                .Where(p => p.Selected == true && p.TwitterObjectId == 1)
+                                                .Select(p => p.Value).ToListAsync();*/
 
 
-/*            if (parametersValue.Count != 0)
-                this.twitterApi.AddParameters("user.fields", parametersValue);*/
+            /*            if (parametersValue.Count != 0)
+                            this.twitterApi.AddParameters("user.fields", parametersValue);*/
 
             IRestResponse response = this.twitterUtils.Client.Execute(this.twitterUtils.Request);
             var jsonResponse = JToken.Parse(response.Content).ToString(Formatting.Indented);
