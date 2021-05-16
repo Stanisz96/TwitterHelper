@@ -1,9 +1,13 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using TwitterHelper.Api.Data;
 using TwitterHelper.Api.Models;
 
 namespace TwitterHelper.Api.Controllers
@@ -13,15 +17,17 @@ namespace TwitterHelper.Api.Controllers
     {
         private readonly ITwitterUtils twitterUtils;
         private readonly IWebHostEnvironment hostingEnv;
+        private readonly TwitterContext context;
 
-        public UserController(ITwitterUtils twitterUtils, IWebHostEnvironment hostingEnv)
+        public UserController(ITwitterUtils twitterUtils, IWebHostEnvironment hostingEnv, TwitterContext context)
         {
             this.twitterUtils = twitterUtils;
             this.hostingEnv = hostingEnv;
+            this.context = context;
         }
 
         [HttpGet("~/api/[controller]/{id}")]
-        public IActionResult Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
             //string userId = "43932737";
 
@@ -29,10 +35,11 @@ namespace TwitterHelper.Api.Controllers
 
             string rootPath = this.hostingEnv.ContentRootPath;
 
-            /*            List<string> parametersValue = await context.Parameters
-                                                .Where(p => p.Selected == true && p.TwitterObjectId == 1)
-                                                .Select(p => p.Value).ToListAsync();*/
+            List<string> parametersValue = await context.Parameters
+                                    .Where(p => p.Selected == true && p.TwitterObjectId == 1)
+                                    .Select(p => p.Value).ToListAsync();
 
+            var x = parametersValue;
 
             /*            if (parametersValue.Count != 0)
                             this.twitterApi.AddParameters("user.fields", parametersValue);*/
