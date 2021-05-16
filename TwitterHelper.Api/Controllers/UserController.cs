@@ -81,7 +81,7 @@ namespace TwitterHelper.Api.Controllers
                 this.twitterUtils.AddParameters("tweet.fields", parametersValue);
 
             this.twitterUtils.AddParameter("max_results", "100");
-            this.twitterUtils.AddParameter("tweet_mode", "extended");
+            this.twitterUtils.AddParameter("expansions", "referenced_tweets.id");
 
             IRestResponse response = this.twitterUtils.Client.Execute(this.twitterUtils.Request);
             var jsonResponse = JToken.Parse(response.Content).ToString(Formatting.Indented);
@@ -95,7 +95,17 @@ namespace TwitterHelper.Api.Controllers
             foreach(Tweet tweet in tweets.AllTweets)
             {
                 string jsonData = JsonConvert.SerializeObject(tweet);//twe.UsersData.ElementAt(count).ToString(Formatting.Indented);
-
+                var tweetRef = tweets.TweetsData.ElementAt(countTweets)["referenced_tweets"];
+                string tweetRefType = "";
+                if(tweetRefType is null)
+                {
+                    tweetRefType = "tweet";
+                }
+                else
+                {
+                    tweetRefType = tweetRef[0]["type"].ToString();
+                }
+                
                 string dataPath = Path.Combine(tweetsPath, $"{tweets.TweetsData.ElementAt(countTweets)["id"]}.json");
                 
                 File.WriteAllText(dataPath, jsonData);
