@@ -49,7 +49,10 @@ namespace TwitterHelper.Api.Controllers
 
             string userPath = Path.Combine(this.rootPath, $"Data\\users\\{id}");
             DirectoryInfo userDirectory = Directory.CreateDirectory(userPath);
-            userDirectory.CreateSubdirectory("tweets");
+            userDirectory.CreateSubdirectory("tweeted");
+            userDirectory.CreateSubdirectory("retweeted");
+            userDirectory.CreateSubdirectory("replied_to");
+            userDirectory.CreateSubdirectory("quoted");
 
             string followingPath = Path.Combine(this.rootPath, $"Data\\following\\{id}");
             DirectoryInfo followingDirectory = Directory.CreateDirectory(followingPath);
@@ -86,26 +89,29 @@ namespace TwitterHelper.Api.Controllers
             IRestResponse response = this.twitterUtils.Client.Execute(this.twitterUtils.Request);
             var jsonResponse = JToken.Parse(response.Content).ToString(Formatting.Indented);
 
-            string subPath = $"Data\\users\\{id}\\tweets" ;
-            string tweetsPath = Path.Combine(this.rootPath, subPath);
 
             Tweets tweets = new Tweets(jsonResponse);
             var countTweets = 0;
 
             foreach(Tweet tweet in tweets.AllTweets)
             {
-                string jsonData = JsonConvert.SerializeObject(tweet);//twe.UsersData.ElementAt(count).ToString(Formatting.Indented);
+                string jsonData = JsonConvert.SerializeObject(tweet);
                 var tweetRef = tweets.TweetsData.ElementAt(countTweets)["referenced_tweets"];
+                
                 string tweetRefType = "";
-                if(tweetRefType is null)
+
+                if(tweetRef is null)
                 {
-                    tweetRefType = "tweet";
+                    tweetRefType = "tweeted";
                 }
                 else
                 {
                     tweetRefType = tweetRef[0]["type"].ToString();
                 }
-                
+
+                string subPath = $"Data\\users\\{id}\\{tweetRefType}";
+                string tweetsPath = Path.Combine(this.rootPath, subPath);
+
                 string dataPath = Path.Combine(tweetsPath, $"{tweets.TweetsData.ElementAt(countTweets)["id"]}.json");
                 
                 File.WriteAllText(dataPath, jsonData);
