@@ -69,8 +69,8 @@ namespace TwitterHelper.Api.Controllers
             return new JsonResult(id);
         }
 
-        [HttpGet("~/api/[controller]/{id}/[action]/{option}")]
-        public async Task<string> Tweets(string id, string option)
+        [HttpGet("~/api/[controller]/{id}/[action]")]
+        public async Task<string> Tweets(string id)
         {
             this.twitterUtils.Configurate("oauth1", $"/users/{id}/tweets", Method.GET);
 
@@ -89,6 +89,8 @@ namespace TwitterHelper.Api.Controllers
             IRestResponse response = this.twitterUtils.Client.Execute(this.twitterUtils.Request);
             var jsonResponse = JToken.Parse(response.Content).ToString(Formatting.Indented);
 
+            string subPath = $"Data\\users\\{id}";
+            string tweetsPath = Path.Combine(this.rootPath, subPath);
 
             Tweets tweets = new Tweets(jsonResponse);
             var countTweets = 0;
@@ -109,10 +111,9 @@ namespace TwitterHelper.Api.Controllers
                     tweetRefType = tweetRef[0]["type"].ToString();
                 }
 
-                string subPath = $"Data\\users\\{id}\\{tweetRefType}";
-                string tweetsPath = Path.Combine(this.rootPath, subPath);
+                string tweetTypePath = Path.Combine(tweetsPath, $"{tweetRefType}");
 
-                string dataPath = Path.Combine(tweetsPath, $"{tweets.TweetsData.ElementAt(countTweets)["id"]}.json");
+                string dataPath = Path.Combine(tweetTypePath, $"{tweets.TweetsData.ElementAt(countTweets)["id"]}.json");
                 
                 File.WriteAllText(dataPath, jsonData);
 
