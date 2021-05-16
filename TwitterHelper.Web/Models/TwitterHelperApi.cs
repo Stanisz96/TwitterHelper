@@ -24,7 +24,8 @@ namespace TwitterHelper.Web.Models
             this.Client.BaseAddress = new Uri(this.BaseUrl);
             this.Client.DefaultRequestHeaders.Clear();
             this.Client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
+            //43932737
+            //1352246343939592192
             HttpResponseMessage Response = await this.Client.GetAsync("api/User/43932737");
 
             if (Response.IsSuccessStatusCode)

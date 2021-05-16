@@ -30,9 +30,9 @@ namespace TwitterHelper.Api.Controllers
         }
 
         [HttpGet("~/api/[controller]/{id}")]
-        public async Task<IActionResult> Get(int id)
+        public async Task<IActionResult> Get(string id)
         {
-            //string userId = "43932737";
+            //string userId = "1352246343939592192";
             this.twitterUtils.Configurate("oauth1", $"/users/{id}", Method.GET);
 
             List<string> parametersValue = await context.Parameters
@@ -66,7 +66,29 @@ namespace TwitterHelper.Api.Controllers
             return new JsonResult(id);
         }
 
+        [HttpGet("~/api/[controller]/{id}/[action]")]
+        public async Task<string> Tweets(string id)
+        {
+            this.twitterUtils.Configurate("oauth1", $"/users/{id}/tweets", Method.GET);
 
+            List<string> parametersValue = await context.Parameters
+                        .Where(p => p.Selected == true && p.TwitterObjectId == 3)
+                        .Select(p => p.Value).ToListAsync();
+
+            var x = parametersValue;
+
+            if (parametersValue.Count != 0)
+                this.twitterUtils.AddParameters("tweet.fields", parametersValue);
+
+            this.twitterUtils.AddParameter("max_results", "100");
+
+            IRestResponse response = this.twitterUtils.Client.Execute(this.twitterUtils.Request);
+            var jsonResponse = JToken.Parse(response.Content).ToString(Formatting.Indented);
+
+            Tweets tweets = new Tweets(jsonResponse);
+
+            return jsonResponse;
+        }
 
 
         [HttpGet("~/api/[controller]/[action]")]
