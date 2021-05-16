@@ -66,8 +66,8 @@ namespace TwitterHelper.Api.Controllers
             return new JsonResult(id);
         }
 
-        [HttpGet("~/api/[controller]/{id}/[action]")]
-        public async Task<string> Tweets(string id)
+        [HttpGet("~/api/[controller]/{id}/[action]/{option}")]
+        public async Task<string> Tweets(string id, string option)
         {
             this.twitterUtils.Configurate("oauth1", $"/users/{id}/tweets", Method.GET);
 
@@ -81,11 +81,27 @@ namespace TwitterHelper.Api.Controllers
                 this.twitterUtils.AddParameters("tweet.fields", parametersValue);
 
             this.twitterUtils.AddParameter("max_results", "100");
+            this.twitterUtils.AddParameter("tweet_mode", "extended");
 
             IRestResponse response = this.twitterUtils.Client.Execute(this.twitterUtils.Request);
             var jsonResponse = JToken.Parse(response.Content).ToString(Formatting.Indented);
 
+            string subPath = $"Data\\users\\{id}\\tweets" ;
+            string tweetsPath = Path.Combine(this.rootPath, subPath);
+
             Tweets tweets = new Tweets(jsonResponse);
+            var countTweets = 0;
+
+            foreach(Tweet tweet in tweets.AllTweets)
+            {
+                string jsonData = JsonConvert.SerializeObject(tweet);//twe.UsersData.ElementAt(count).ToString(Formatting.Indented);
+
+                string dataPath = Path.Combine(tweetsPath, $"{tweets.TweetsData.ElementAt(countTweets)["id"]}.json");
+                
+                File.WriteAllText(dataPath, jsonData);
+
+                countTweets += 1;
+            }
 
             return jsonResponse;
         }
