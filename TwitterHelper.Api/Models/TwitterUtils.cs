@@ -59,7 +59,7 @@ namespace TwitterHelper.Api.Models
 
         public void AddParameter(string parameterName, string parameterValue)
         {
-            this.Request.AddParameter(parameterName, parameterValue);
+            this.Request.AddOrUpdateParameter(parameterName, parameterValue);
         }
 
         public void AddParameters(string parameterName, List<string> parameterValues)
@@ -71,7 +71,7 @@ namespace TwitterHelper.Api.Models
                 if (i != parameterValues.Count - 1) strValues += ",";
             }
 
-            this.Request.AddParameter(parameterName, strValues);
+            this.Request.AddOrUpdateParameter(parameterName, strValues);
         }
 
         private void setBearerToken()

@@ -102,7 +102,7 @@ namespace TwitterHelper.Api.Controllers
             this.twitterUtils.AddParameter("max_results", "100");
             this.twitterUtils.AddParameter("expansions", "referenced_tweets.id");
 
-            string resultString = "";
+            string resultString = $"MAIN USER ID: {id}\n\n";
 
             foreach (string userDirPath in Directory.GetDirectories(followingUsersDirPath))
             {
@@ -110,18 +110,37 @@ namespace TwitterHelper.Api.Controllers
                 this.twitterUtils.Configurate("oauth1", $"/users/{subUserId}/tweets", Method.GET);
 
                 int tweetsCount = 0;
+                int count = 100;
 
-                IRestResponse response = this.twitterUtils.Client.Execute(this.twitterUtils.Request);
-                var jsonResponse = JToken.Parse(response.Content).ToString(Formatting.Indented);
+                while (!(count < 100 || tweetsCount > 1000))
+                {
+                    IRestResponse response = this.twitterUtils.Client.Execute(this.twitterUtils.Request);
+                    var jsonResponse = JToken.Parse(response.Content).ToString(Formatting.Indented);
 
 
+                    Tweets tweets = new Tweets(jsonResponse);
 
-                Tweets tweets = new Tweets(jsonResponse);
-                if (tweets.TweetsData is null || tweets.AllTweets is null) continue;
+                    if (tweets.TweetsData is null || tweets.AllTweets is null)
+                    {
+                        System.Threading.Thread.Sleep(900);
+                        break;
+                    }
 
-                this.helper.SaveFollowingTweets(tweets, userDirPath);
 
-                System.Threading.Thread.Sleep(900);
+                    count = Int32.Parse(tweets.Meta.result_count);
+                    tweetsCount += count;
+                    
+                    if (tweets.Meta.next_token is not null)
+                    {
+                        this.twitterUtils.AddParameter("pagination_token", tweets.Meta.next_token);
+                    }
+
+                    this.helper.SaveFollowingTweets(tweets, userDirPath);
+
+                    System.Threading.Thread.Sleep(900);
+                }
+
+                resultString += $"UserID: {userDirPath} ||| Collected Tweets: {tweetsCount}\n";
             }
 
             return new JsonResult(resultString);
