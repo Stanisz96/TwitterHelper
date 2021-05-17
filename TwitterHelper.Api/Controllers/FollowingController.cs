@@ -79,5 +79,66 @@ namespace TwitterHelper.Api.Controllers
 
             return new JsonResult(id);
         }
+
+        [HttpGet("~/api/[controller]/{id}/[action]")]
+        public async Task<IActionResult> Tweets(string id)
+        {
+            string followingUsersDirPath = Path.Combine(this.rootPath, $"Data\\following\\{id}");
+
+            List<string> parametersValue = await context.Parameters
+                                .Where(p => p.Selected == true && p.TwitterObjectId == 4)
+                                .Select(p => p.Value).ToListAsync();
+
+            if (parametersValue.Count != 0)
+                this.twitterUtils.AddParameters("tweet.fields", parametersValue);
+
+            this.twitterUtils.AddParameter("max_results", "100");
+            this.twitterUtils.AddParameter("expansions", "referenced_tweets.id");
+
+            foreach (string userDirPath in Directory.GetDirectories(followingUsersDirPath))
+            {
+                string subUserId = userDirPath.Remove(0, followingUsersDirPath.Length + 1);
+                this.twitterUtils.Configurate("oauth1", $"/users/{subUserId}/tweets", Method.GET);
+
+                IRestResponse response = this.twitterUtils.Client.Execute(this.twitterUtils.Request);
+                var jsonResponse = JToken.Parse(response.Content).ToString(Formatting.Indented);
+
+                Tweets tweets = new Tweets(jsonResponse);
+                if (tweets.TweetsData is null || tweets.AllTweets is null)
+                {
+                    continue;
+                }
+                var countTweets = 0;
+
+                foreach (Tweet tweet in tweets.AllTweets)
+                {
+                    string jsonData = JsonConvert.SerializeObject(tweet);
+                    var tweetRef = tweets.TweetsData.ElementAt(countTweets)["referenced_tweets"];
+
+                    string tweetRefType = "";
+
+                    if (tweetRef is null)
+                    {
+                        tweetRefType = "tweeted";
+                    }
+                    else
+                    {
+                        tweetRefType = tweetRef[0]["type"].ToString();
+                    }
+
+                    string tweetTypePath = Path.Combine(userDirPath, $"{tweetRefType}");
+
+                    string dataPath = Path.Combine(tweetTypePath, $"{tweets.TweetsData.ElementAt(countTweets)["id"]}.json");
+
+                    File.WriteAllText(dataPath, jsonData);
+
+                    countTweets += 1;
+                }
+
+                System.Threading.Thread.Sleep(900);
+            }
+
+            return new JsonResult(id);
+        }
     }
 }
