@@ -11,6 +11,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TwitterHelper.Api.Data;
 using TwitterHelper.Api.Models;
+using TwitterHelper.Api.Tools;
 
 namespace TwitterHelper.Api.Controllers
 {
@@ -21,13 +22,19 @@ namespace TwitterHelper.Api.Controllers
         private readonly IWebHostEnvironment hostingEnv;
         private readonly TwitterContext context;
         private readonly string rootPath;
+        private readonly IHelper helper;
 
-        public FollowingController(ITwitterUtils twitterUtils, IWebHostEnvironment hostingEnv, TwitterContext context)
+        public FollowingController(
+            ITwitterUtils twitterUtils,
+            IWebHostEnvironment hostingEnv,
+            TwitterContext context,
+            IHelper helper)
         {
             this.twitterUtils = twitterUtils;
             this.hostingEnv = hostingEnv;
             this.context = context;
             this.rootPath = this.hostingEnv.ContentRootPath;
+            this.helper = helper;
         }
 
         [HttpGet("~/api/[controller]/{id}")]
@@ -95,50 +102,29 @@ namespace TwitterHelper.Api.Controllers
             this.twitterUtils.AddParameter("max_results", "100");
             this.twitterUtils.AddParameter("expansions", "referenced_tweets.id");
 
+            string resultString = "";
+
             foreach (string userDirPath in Directory.GetDirectories(followingUsersDirPath))
             {
                 string subUserId = userDirPath.Remove(0, followingUsersDirPath.Length + 1);
                 this.twitterUtils.Configurate("oauth1", $"/users/{subUserId}/tweets", Method.GET);
 
+                int tweetsCount = 0;
+
                 IRestResponse response = this.twitterUtils.Client.Execute(this.twitterUtils.Request);
                 var jsonResponse = JToken.Parse(response.Content).ToString(Formatting.Indented);
 
+
+
                 Tweets tweets = new Tweets(jsonResponse);
-                if (tweets.TweetsData is null || tweets.AllTweets is null)
-                {
-                    continue;
-                }
-                var countTweets = 0;
+                if (tweets.TweetsData is null || tweets.AllTweets is null) continue;
 
-                foreach (Tweet tweet in tweets.AllTweets)
-                {
-                    string jsonData = JsonConvert.SerializeObject(tweet);
-                    var tweetRef = tweets.TweetsData.ElementAt(countTweets)["referenced_tweets"];
-
-                    string tweetRefType = "";
-
-                    if (tweetRef is null)
-                    {
-                        tweetRefType = "tweeted";
-                    }
-                    else
-                    {
-                        tweetRefType = tweetRef[0]["type"].ToString();
-                    }
-
-                    string tweetTypePath = Path.Combine(userDirPath, $"{tweetRefType}");
-
-                    string dataPath = Path.Combine(tweetTypePath, $"{tweets.TweetsData.ElementAt(countTweets)["id"]}.json");
-
-                    File.WriteAllText(dataPath, jsonData);
-
-                    countTweets += 1;
-                }
+                this.helper.SaveFollowingTweets(tweets, userDirPath);
 
                 System.Threading.Thread.Sleep(900);
             }
 
-            return new JsonResult(id);
+            return new JsonResult(resultString);
         }
     }
 }

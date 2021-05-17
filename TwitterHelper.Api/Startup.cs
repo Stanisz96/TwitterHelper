@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using TwitterHelper.Api.Data;
 using TwitterHelper.Api.Models;
+using TwitterHelper.Api.Tools;
 
 namespace TwitterHelper.Api
 {
@@ -34,6 +35,7 @@ namespace TwitterHelper.Api
             });
 
             services.AddScoped<ITwitterUtils, TwitterUtils>();
+            services.AddScoped<IHelper, Helper>();
 
         }
 
