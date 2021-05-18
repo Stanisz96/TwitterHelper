@@ -4,12 +4,14 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using TwitterHelper.Api.Data;
 using TwitterHelper.Api.Models;
+using TwitterHelper.Api.Tools;
 
 namespace TwitterHelper.Api.Controllers
 {
@@ -20,13 +22,19 @@ namespace TwitterHelper.Api.Controllers
         private readonly IWebHostEnvironment hostingEnv;
         private readonly TwitterContext context;
         private readonly string rootPath;
+        private readonly IHelper helper;
 
-        public UserController(ITwitterUtils twitterUtils, IWebHostEnvironment hostingEnv, TwitterContext context)
+        public UserController(
+            ITwitterUtils twitterUtils,
+            IWebHostEnvironment hostingEnv,
+            TwitterContext context,
+            IHelper helper)
         {
             this.twitterUtils = twitterUtils;
             this.hostingEnv = hostingEnv;
             this.context = context;
-            this.rootPath = this.hostingEnv.ContentRootPath;
+            this.rootPath = "D:\\Magisterka";
+            this.helper = helper;
         }
 
         [HttpGet("~/api/[controller]/{id}")]
@@ -123,6 +131,38 @@ namespace TwitterHelper.Api.Controllers
             return jsonResponse;
         }
 
+
+        [HttpGet("~/api/[controller]/[action]")]
+        public async Task<string> Random()
+        {
+            // 1. Set time
+            // 2. Set max_tweets 100
+            // 3. Set user public metrics
+            this.twitterUtils.Configurate("oauth1", $"/tweets/search/recent", Method.GET);
+
+            List<string> parametersValue = await context.Parameters
+                                    .Where(p => p.Selected == true && p.TwitterObjectId == 3)
+                                    .Select(p => p.Value).ToListAsync();
+
+            int randomHour = new Random().Next(0, 23);
+            DateTime startTime = new DateTime(2021, 05, 17, randomHour, 0, 0);
+            DateTime endTime = new DateTime(2021, 05, 17, randomHour + 1, 0, 0);
+
+            this.twitterUtils.AddQuery("lang:en the -the");
+            this.twitterUtils.AddParameter("start_time", this.helper.ToTwitterTimeStamp(startTime));
+            this.twitterUtils.AddParameter("end_time", this.helper.ToTwitterTimeStamp(endTime));
+            this.twitterUtils.AddParameter("max_results", "100");
+            if (parametersValue.Count != 0)
+                this.twitterUtils.AddParameters("tweet.fields", parametersValue);
+
+            IRestResponse response = this.twitterUtils.Client.Execute(this.twitterUtils.Request);
+
+            int result_count = Int32.Parse(JToken.Parse(response.Content)["meta"]["result_count"].ToString());
+            int randomTweet = new Random().Next(1, result_count);
+            var userId = JToken.Parse(response.Content)["data"][randomTweet]["author_id"].ToString(Formatting.Indented);
+
+            return userId;
+        }
 
         [HttpGet("~/api/[controller]/[action]")]
         public string Test()

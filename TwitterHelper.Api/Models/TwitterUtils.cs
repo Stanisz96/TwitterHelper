@@ -62,6 +62,11 @@ namespace TwitterHelper.Api.Models
             this.Request.AddOrUpdateParameter(parameterName, parameterValue);
         }
 
+        public void AddQuery(string queryValue)
+        {
+            this.Request.AddOrUpdateParameter("query", queryValue, ParameterType.QueryString);
+        }
+
         public void AddParameters(string parameterName, List<string> parameterValues)
         {
             var strValues = "";

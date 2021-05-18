@@ -33,7 +33,7 @@ namespace TwitterHelper.Api.Controllers
             this.twitterUtils = twitterUtils;
             this.hostingEnv = hostingEnv;
             this.context = context;
-            this.rootPath = this.hostingEnv.ContentRootPath;
+            this.rootPath = "D:\\Magisterka";
             this.helper = helper;
         }
 
@@ -47,10 +47,11 @@ namespace TwitterHelper.Api.Controllers
                                     .Where(p => p.Selected == true && p.TwitterObjectId == 2)
                                     .Select(p => p.Value).ToListAsync();
 
-            var x = parametersValue;
 
             if (parametersValue.Count != 0)
                 this.twitterUtils.AddParameters("user.fields", parametersValue);
+
+            this.twitterUtils.AddParameter("max_results", "300");
 
             IRestResponse response = this.twitterUtils.Client.Execute(this.twitterUtils.Request);
             var jsonResponse = JToken.Parse(response.Content).ToString(Formatting.Indented);
@@ -112,7 +113,7 @@ namespace TwitterHelper.Api.Controllers
                 int tweetsCount = 0;
                 int count = 100;
 
-                while (!(count < 100 || tweetsCount > 1000))
+                while (!(count < 100 || tweetsCount >= 1000))
                 {
                     IRestResponse response = this.twitterUtils.Client.Execute(this.twitterUtils.Request);
                     var jsonResponse = JToken.Parse(response.Content).ToString(Formatting.Indented);
@@ -122,7 +123,7 @@ namespace TwitterHelper.Api.Controllers
 
                     if (tweets.TweetsData is null || tweets.AllTweets is null)
                     {
-                        System.Threading.Thread.Sleep(900);
+                        System.Threading.Thread.Sleep(950);
                         break;
                     }
 
@@ -137,7 +138,7 @@ namespace TwitterHelper.Api.Controllers
 
                     this.helper.SaveFollowingTweets(tweets, userDirPath);
 
-                    System.Threading.Thread.Sleep(900);
+                    System.Threading.Thread.Sleep(950);
                 }
 
                 resultString += $"UserID: {userDirPath} ||| Collected Tweets: {tweetsCount}\n";

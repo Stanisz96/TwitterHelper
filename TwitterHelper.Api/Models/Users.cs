@@ -12,11 +12,24 @@ namespace TwitterHelper.Api.Models
         {
             JObject jObject = JObject.Parse(json);
             JToken jUsers = jObject["data"];
-            UsersData = jUsers.ToObject<List<JToken>>();
-            AllUsers = jUsers.ToObject<List<User>>();
+
+            if (jUsers is not null)
+            {
+                UsersData = jUsers.ToObject<List<JToken>>();
+                AllUsers = jUsers.ToObject<List<User>>();
+                Meta = jObject["meta"].ToObject<TweetsMeta>();
+            }
+            else
+            {
+                UsersData = null;
+                AllUsers = null;
+                Meta = null;
+            }
+
         }
 
         public IEnumerable<User> AllUsers { get; set; }
         public List<JToken> UsersData{ get; set; }
+        public TweetsMeta Meta { get; set; }
     }
 }
