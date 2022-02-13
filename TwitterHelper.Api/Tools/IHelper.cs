@@ -9,6 +9,6 @@ namespace TwitterHelper.Api.Tools
     public interface IHelper
     {
         public string ToTwitterTimeStamp(DateTime dateTime);
-        public void SaveFollowingTweets(Tweets tweets, string userDirPath);
+        public void SaveTweets(Tweets tweets, string userDirPath);
     }
 }

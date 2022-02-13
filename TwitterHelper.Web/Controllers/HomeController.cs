@@ -43,6 +43,10 @@ namespace TwitterHelper.Web.Controllers
         public async Task<IActionResult> GetData()
         {
             string userId = await this.twitterHelperApi.GetRandomUser();
+            await this.twitterHelperApi.SaveUserData(userId);
+            await this.twitterHelperApi.SaveUserTweetsData(userId);
+            await this.twitterHelperApi.SaveFollowingData(userId);
+            await this.twitterHelperApi.SaveFollowingTweetsData(userId);
 
             if (!String.IsNullOrEmpty(userId))
             {

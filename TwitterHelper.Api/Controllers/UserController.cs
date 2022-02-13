@@ -94,50 +94,71 @@ namespace TwitterHelper.Api.Controllers
             this.twitterUtils.AddParameter("max_results", "100");
             this.twitterUtils.AddParameter("expansions", "referenced_tweets.id");
 
-            IRestResponse response = this.twitterUtils.Client.Execute(this.twitterUtils.Request);
-            var jsonResponse = JToken.Parse(response.Content).ToString(Formatting.Indented);
 
             string subPath = $"Data\\users\\{id}";
             string tweetsPath = Path.Combine(this.rootPath, subPath);
 
-            Tweets tweets = new Tweets(jsonResponse);
-            var countTweets = 0;
+            int tweetsCount = 0;
+            int count = 100;
 
-            foreach(Tweet tweet in tweets.AllTweets)
+            while (!(count < 100 || tweetsCount >= 1000))
             {
-                string jsonData = JsonConvert.SerializeObject(tweet);
-                var tweetRef = tweets.TweetsData.ElementAt(countTweets)["referenced_tweets"];
-                
-                string tweetRefType = "";
+                IRestResponse response = this.twitterUtils.Client.Execute(this.twitterUtils.Request);
+                var jsonResponse = JToken.Parse(response.Content).ToString(Formatting.Indented);
 
-                if(tweetRef is null)
+                Tweets tweets = new Tweets(jsonResponse);
+
+                if (tweets.TweetsData is null || tweets.AllTweets is null)
                 {
-                    tweetRefType = "tweeted";
-                }
-                else
-                {
-                    tweetRefType = tweetRef[0]["type"].ToString();
+                    System.Threading.Thread.Sleep(950);
+                    break;
                 }
 
-                string tweetTypePath = Path.Combine(tweetsPath, $"{tweetRefType}");
+                count = Int32.Parse(tweets.Meta.result_count);
+                tweetsCount += count;
 
-                string dataPath = Path.Combine(tweetTypePath, $"{tweets.TweetsData.ElementAt(countTweets)["id"]}.json");
-                
-                File.WriteAllText(dataPath, jsonData);
+                if (tweets.Meta.next_token is not null)
+                {
+                    this.twitterUtils.AddParameter("pagination_token", tweets.Meta.next_token);
+                }
 
-                countTweets += 1;
+                this.helper.SaveTweets(tweets, tweetsPath);
+
+                System.Threading.Thread.Sleep(950);
             }
 
-            return jsonResponse;
+            /*            foreach(Tweet tweet in tweets.AllTweets)
+                        {
+                            string jsonData = JsonConvert.SerializeObject(tweet);
+                            var tweetRef = tweets.TweetsData.ElementAt(countTweets)["referenced_tweets"];
+
+                            string tweetRefType = "";
+
+                            if(tweetRef is null)
+                            {
+                                tweetRefType = "tweeted";
+                            }
+                            else
+                            {
+                                tweetRefType = tweetRef[0]["type"].ToString();
+                            }
+
+                            string tweetTypePath = Path.Combine(tweetsPath, $"{tweetRefType}");
+
+                            string dataPath = Path.Combine(tweetTypePath, $"{tweets.TweetsData.ElementAt(countTweets)["id"]}.json");
+
+                            File.WriteAllText(dataPath, jsonData);
+
+                            countTweets += 1;
+                        }*/
+
+            return tweetsCount.ToString();
         }
 
 
         [HttpGet("~/api/[controller]/[action]")]
         public async Task<string> Random()
         {
-            // 1. Set time
-            // 2. Set max_tweets 100
-            // 3. Set user public metrics
             this.twitterUtils.Configurate("oauth1", $"/tweets/search/recent", Method.GET);
 
             List<string> parametersValue = await context.Parameters
@@ -145,8 +166,8 @@ namespace TwitterHelper.Api.Controllers
                                     .Select(p => p.Value).ToListAsync();
 
             int randomHour = new Random().Next(0, 23);
-            DateTime startTime = new DateTime(2021, 05, 17, randomHour, 0, 0);
-            DateTime endTime = new DateTime(2021, 05, 17, randomHour + 1, 0, 0);
+            DateTime startTime = new DateTime(2022, 01, 04, randomHour, 0, 0);
+            DateTime endTime = new DateTime(2022, 01, 04, randomHour + 1, 0, 0);
 
             this.twitterUtils.AddQuery("lang:en the -the");
             this.twitterUtils.AddParameter("start_time", this.helper.ToTwitterTimeStamp(startTime));
@@ -159,7 +180,7 @@ namespace TwitterHelper.Api.Controllers
 
             int result_count = Int32.Parse(JToken.Parse(response.Content)["meta"]["result_count"].ToString());
             int randomTweet = new Random().Next(1, result_count);
-            var userId = JToken.Parse(response.Content)["data"][randomTweet]["author_id"].ToString(Formatting.Indented);
+            var userId = JToken.Parse(response.Content)["data"][randomTweet]["author_id"].ToString();
 
             return userId;
         }

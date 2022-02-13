@@ -103,7 +103,7 @@ namespace TwitterHelper.Api.Controllers
             this.twitterUtils.AddParameter("max_results", "100");
             this.twitterUtils.AddParameter("expansions", "referenced_tweets.id");
 
-            string resultString = $"MAIN USER ID: {id}\n\n";
+            int allTweetsCount = 0;
 
             foreach (string userDirPath in Directory.GetDirectories(followingUsersDirPath))
             {
@@ -130,21 +130,20 @@ namespace TwitterHelper.Api.Controllers
 
                     count = Int32.Parse(tweets.Meta.result_count);
                     tweetsCount += count;
-                    
+                    allTweetsCount += tweetsCount;
+
                     if (tweets.Meta.next_token is not null)
                     {
                         this.twitterUtils.AddParameter("pagination_token", tweets.Meta.next_token);
                     }
 
-                    this.helper.SaveFollowingTweets(tweets, userDirPath);
+                    this.helper.SaveTweets(tweets, userDirPath);
 
                     System.Threading.Thread.Sleep(950);
                 }
-
-                resultString += $"UserID: {userDirPath} ||| Collected Tweets: {tweetsCount}\n";
             }
 
-            return new JsonResult(resultString);
+            return new JsonResult(allTweetsCount.ToString());
         }
     }
 }

@@ -17,7 +17,7 @@ namespace TwitterHelper.Api.Tools
         }
 
 
-        public void SaveFollowingTweets(Tweets tweets, string userDirPath)
+        public void SaveTweets(Tweets tweets, string userDirPath)
         {
             var countTweets = 0;
 
