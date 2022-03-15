@@ -101,7 +101,7 @@ namespace TwitterHelper.Api.Controllers
             int tweetsCount = 0;
             int count = 100;
 
-            while (!(count < 100 || tweetsCount >= 1000))
+            while (!(tweetsCount >= 1000))
             {
                 IRestResponse response = this.twitterUtils.Client.Execute(this.twitterUtils.Request);
                 var jsonResponse = JToken.Parse(response.Content).ToString(Formatting.Indented);
@@ -166,8 +166,8 @@ namespace TwitterHelper.Api.Controllers
                                     .Select(p => p.Value).ToListAsync();
 
             int randomHour = new Random().Next(0, 23);
-            DateTime startTime = new DateTime(2022, 01, 04, randomHour, 0, 0);
-            DateTime endTime = new DateTime(2022, 01, 04, randomHour + 1, 0, 0);
+            DateTime startTime = new DateTime(2022, 03, 13, randomHour, 0, 0);
+            DateTime endTime = new DateTime(2022, 03, 13, randomHour + 1, 0, 0);
 
             this.twitterUtils.AddQuery("lang:en the -the");
             this.twitterUtils.AddParameter("start_time", this.helper.ToTwitterTimeStamp(startTime));
