@@ -1,6 +1,6 @@
 ﻿namespace TwitterHelper.Api.Models
 {
-    public class PublicMetrics
+    public class UserPublicMetrics
     {
         public int Followers_count { get; set; }
         public int Following_count { get; set; }
