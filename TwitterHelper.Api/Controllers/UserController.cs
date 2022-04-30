@@ -106,7 +106,7 @@ namespace TwitterHelper.Api.Controllers
                 IRestResponse response = this.twitterUtils.Client.Execute(this.twitterUtils.Request);
                 var jsonResponse = JToken.Parse(response.Content).ToString(Formatting.Indented);
 
-                Tweets tweets = new Tweets(jsonResponse);
+                Tweets tweets = new(jsonResponse);
 
                 if (tweets.TweetsData is null || tweets.AllTweets is null)
                 {
@@ -127,31 +127,6 @@ namespace TwitterHelper.Api.Controllers
                 System.Threading.Thread.Sleep(950);
             }
 
-            /*            foreach(Tweet tweet in tweets.AllTweets)
-                        {
-                            string jsonData = JsonConvert.SerializeObject(tweet);
-                            var tweetRef = tweets.TweetsData.ElementAt(countTweets)["referenced_tweets"];
-
-                            string tweetRefType = "";
-
-                            if(tweetRef is null)
-                            {
-                                tweetRefType = "tweeted";
-                            }
-                            else
-                            {
-                                tweetRefType = tweetRef[0]["type"].ToString();
-                            }
-
-                            string tweetTypePath = Path.Combine(tweetsPath, $"{tweetRefType}");
-
-                            string dataPath = Path.Combine(tweetTypePath, $"{tweets.TweetsData.ElementAt(countTweets)["id"]}.json");
-
-                            File.WriteAllText(dataPath, jsonData);
-
-                            countTweets += 1;
-                        }*/
-
             return tweetsCount.ToString();
         }
 
@@ -166,8 +141,8 @@ namespace TwitterHelper.Api.Controllers
                                     .Select(p => p.Value).ToListAsync();
 
             int randomHour = new Random().Next(0, 23);
-            DateTime startTime = new DateTime(2022, 03, 13, randomHour, 0, 0);
-            DateTime endTime = new DateTime(2022, 03, 13, randomHour + 1, 0, 0);
+            DateTime startTime = new(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day - 1, randomHour, 0, 0);
+            DateTime endTime = new(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day - 1, randomHour + 1, 0, 0);
 
             this.twitterUtils.AddQuery("lang:en the -the");
             this.twitterUtils.AddParameter("start_time", this.helper.ToTwitterTimeStamp(startTime));
@@ -177,12 +152,22 @@ namespace TwitterHelper.Api.Controllers
                 this.twitterUtils.AddParameters("tweet.fields", parametersValue);
 
             IRestResponse response = this.twitterUtils.Client.Execute(this.twitterUtils.Request);
+            var jsonResponse = JToken.Parse(response.Content).ToString(Formatting.Indented);
 
-            int result_count = Int32.Parse(JToken.Parse(response.Content)["meta"]["result_count"].ToString());
+            Tweets tweets = new(jsonResponse);
+
+            int result_count = Int32.Parse(tweets.Meta.result_count);
             int randomTweet = new Random().Next(1, result_count);
             var userId = JToken.Parse(response.Content)["data"][randomTweet]["author_id"].ToString();
 
-            return userId;
+            this.twitterUtils.RemoveParameters();
+            this.twitterUtils.Configurate("oauth1", $"/users/by", Method.GET);
+            this.twitterUtils.AddParameters("id", tweets.AllTweets.Select(tweet => tweet.Author_id).ToList());
+
+            IRestResponse response2 = this.twitterUtils.Client.Execute(this.twitterUtils.Request);
+            var jsonResponse2 = JToken.Parse(response2.Content).ToString(Formatting.Indented);
+
+            return jsonResponse2;
         }
 
         [HttpGet("~/api/[controller]/[action]")]

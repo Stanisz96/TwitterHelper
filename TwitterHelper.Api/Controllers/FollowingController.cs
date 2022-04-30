@@ -113,7 +113,7 @@ namespace TwitterHelper.Api.Controllers
                 int tweetsCount = 0;
                 int count = 100;
 
-                while (!(count < 100 || tweetsCount >= 1000))
+                while (!(tweetsCount >= 1000))
                 {
                     IRestResponse response = this.twitterUtils.Client.Execute(this.twitterUtils.Request);
                     var jsonResponse = JToken.Parse(response.Content).ToString(Formatting.Indented);

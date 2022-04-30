@@ -11,6 +11,7 @@ namespace TwitterHelper.Api.Models
         public void Configurate(string oauth, string resource, Method method);
         public void AddParameter(string parameterName, string parameterValue);
         public void AddParameters(string parameterName, List<string> parameterValues);
+        public void RemoveParameters();
         public void AddQuery(string queryValue);
     }
 }
