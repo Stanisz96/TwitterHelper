@@ -46,5 +46,13 @@ namespace TwitterHelper.Api.Tools
                 countTweets += 1;
             }
         }
+
+        public void WaitCalculatedTime(int limitReqPerMin, DateTime dateTimeReference)
+        {
+            int minDiffSec = (int)(60 / limitReqPerMin + 1);
+            int diffSeconds = minDiffSec - (DateTime.Now - dateTimeReference).Seconds;
+            int waitSeconds = diffSeconds < 0 ? 0 : diffSeconds;
+            System.Threading.Thread.Sleep(waitSeconds * 1000);
+        }
     }
 }

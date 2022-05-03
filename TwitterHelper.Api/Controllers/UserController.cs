@@ -38,16 +38,16 @@ namespace TwitterHelper.Api.Controllers
         }
 
         [HttpGet("~/api/[controller]/{id}")]
-        public async Task<IActionResult> Get(string id)
+        public async Task<IActionResult> Get(string id, DateTimeReference refTime)
         {
+            this.helper.WaitCalculatedTime(20, refTime.UsersLookupTime);
+
             //string userId = "1352246343939592192";
             this.twitterUtils.Configurate("oauth1", $"/users/{id}", Method.GET);
 
             List<string> parametersValue = await context.Parameters
                                     .Where(p => p.Selected == true && p.TwitterObjectId == 1)
                                     .Select(p => p.Value).ToListAsync();
-
-            var x = parametersValue;
 
             if (parametersValue.Count != 0)
                 this.twitterUtils.AddParameters("user.fields", parametersValue);
