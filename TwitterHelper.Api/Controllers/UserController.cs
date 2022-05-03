@@ -38,7 +38,7 @@ namespace TwitterHelper.Api.Controllers
         }
 
         [HttpGet("~/api/[controller]/{id}")]
-        public async Task<IActionResult> Get(string id, DateTimeReference refTime)
+        public async Task<IActionResult> Get(string id)
         {
             //string userId = "1352246343939592192";
             this.twitterUtils.Configurate("oauth1", $"/users/{id}", Method.Get);
@@ -50,6 +50,7 @@ namespace TwitterHelper.Api.Controllers
             if (parametersValue.Count != 0)
                 this.twitterUtils.AddParameters("user.fields", parametersValue);
 
+            var refTime = await context.DateTimeReferences.FirstAsync();
             this.helper.WaitCalculatedTime(20, refTime.UsersLookupTime);
 
             RestResponse response = await this.twitterUtils.Client.ExecuteAsync(this.twitterUtils.Request);
@@ -70,6 +71,9 @@ namespace TwitterHelper.Api.Controllers
 
             refTime.UsersLookupTime = DateTime.Now;
 
+            context.Update(refTime);
+            await context.SaveChangesAsync();
+
             if (!jsonResponse.Any())
             {
                 return new BadRequestResult();
@@ -79,15 +83,13 @@ namespace TwitterHelper.Api.Controllers
         }
 
         [HttpGet("~/api/[controller]/{id}/[action]")]
-        public async Task<string> Tweets(string id, DateTimeReference refTime)
+        public async Task<string> Tweets(string id)
         {
             this.twitterUtils.Configurate("oauth1", $"/users/{id}/tweets", Method.Get);
 
             List<string> parametersValue = await context.Parameters
                         .Where(p => p.Selected == true && p.TwitterObjectId == 3)
                         .Select(p => p.Value).ToListAsync();
-
-            var x = parametersValue;
 
             if (parametersValue.Count != 0)
                 this.twitterUtils.AddParameters("tweet.fields", parametersValue);
@@ -102,9 +104,11 @@ namespace TwitterHelper.Api.Controllers
             int tweetsCount = 0;
             int count = 100;
 
+
             while (!(tweetsCount >= 1000))
             {
-                this.helper.WaitCalculatedTime(100, refTime.UsersLookupTime);
+                var refTime = await context.DateTimeReferences.FirstAsync();
+                this.helper.WaitCalculatedTime(100, refTime.TimelinesTime);
 
                 RestResponse response = await this.twitterUtils.Client.ExecuteAsync(this.twitterUtils.Request);
                 var jsonResponse = JToken.Parse(response.Content).ToString(Formatting.Indented);
@@ -114,6 +118,9 @@ namespace TwitterHelper.Api.Controllers
                 if (tweets.TweetsData is null || tweets.AllTweets is null)
                 {
                     refTime.TimelinesTime = DateTime.Now;
+
+                    context.Update(refTime);
+                    await context.SaveChangesAsync();
                     break;
                 }
 
@@ -128,6 +135,9 @@ namespace TwitterHelper.Api.Controllers
                 this.helper.SaveTweets(tweets, tweetsPath);
 
                 refTime.TimelinesTime = DateTime.Now;
+
+                context.Update(refTime);
+                await context.SaveChangesAsync();
             }
 
             return tweetsCount.ToString();
