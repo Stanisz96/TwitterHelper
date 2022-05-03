@@ -41,7 +41,7 @@ namespace TwitterHelper.Api.Controllers
         public async Task<IActionResult> Get(string id)
         {
             //string userId = "1352246343939592192";
-            this.twitterUtils.Configurate("oauth1", $"/users/{id}/following", Method.GET);
+            this.twitterUtils.Configurate("oauth1", $"/users/{id}/following", Method.Get);
 
             List<string> parametersValue = await context.Parameters
                                     .Where(p => p.Selected == true && p.TwitterObjectId == 2)
@@ -53,7 +53,7 @@ namespace TwitterHelper.Api.Controllers
 
             this.twitterUtils.AddParameter("max_results", "300");
 
-            IRestResponse response = this.twitterUtils.Client.Execute(this.twitterUtils.Request);
+            RestResponse response = await this.twitterUtils.Client.ExecuteAsync(this.twitterUtils.Request);
             var jsonResponse = JToken.Parse(response.Content).ToString(Formatting.Indented);
 
             string followingPath = Path.Combine(this.rootPath, $"Data\\following\\{id}");
@@ -108,14 +108,14 @@ namespace TwitterHelper.Api.Controllers
             foreach (string userDirPath in Directory.GetDirectories(followingUsersDirPath))
             {
                 string subUserId = userDirPath.Remove(0, followingUsersDirPath.Length + 1);
-                this.twitterUtils.Configurate("oauth1", $"/users/{subUserId}/tweets", Method.GET);
+                this.twitterUtils.Configurate("oauth1", $"/users/{subUserId}/tweets", Method.Get);
 
                 int tweetsCount = 0;
                 int count = 100;
 
                 while (!(tweetsCount >= 1000))
                 {
-                    IRestResponse response = this.twitterUtils.Client.Execute(this.twitterUtils.Request);
+                    RestResponse response = await this.twitterUtils.Client.ExecuteAsync(this.twitterUtils.Request);
                     var jsonResponse = JToken.Parse(response.Content).ToString(Formatting.Indented);
 
 

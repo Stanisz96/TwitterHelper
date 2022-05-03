@@ -40,10 +40,8 @@ namespace TwitterHelper.Api.Controllers
         [HttpGet("~/api/[controller]/{id}")]
         public async Task<IActionResult> Get(string id, DateTimeReference refTime)
         {
-            this.helper.WaitCalculatedTime(20, refTime.UsersLookupTime);
-
             //string userId = "1352246343939592192";
-            this.twitterUtils.Configurate("oauth1", $"/users/{id}", Method.GET);
+            this.twitterUtils.Configurate("oauth1", $"/users/{id}", Method.Get);
 
             List<string> parametersValue = await context.Parameters
                                     .Where(p => p.Selected == true && p.TwitterObjectId == 1)
@@ -52,7 +50,9 @@ namespace TwitterHelper.Api.Controllers
             if (parametersValue.Count != 0)
                 this.twitterUtils.AddParameters("user.fields", parametersValue);
 
-            IRestResponse response = this.twitterUtils.Client.Execute(this.twitterUtils.Request);
+            this.helper.WaitCalculatedTime(20, refTime.UsersLookupTime);
+
+            RestResponse response = await this.twitterUtils.Client.ExecuteAsync(this.twitterUtils.Request);
             var jsonResponse = JToken.Parse(response.Content).ToString(Formatting.Indented);
 
             string userPath = Path.Combine(this.rootPath, $"Data\\users\\{id}");
@@ -68,19 +68,20 @@ namespace TwitterHelper.Api.Controllers
             string dataPath = Path.Combine(userPath, "data.json");
             File.WriteAllText(dataPath, jsonResponse);
 
+            refTime.UsersLookupTime = DateTime.Now;
 
             if (!jsonResponse.Any())
             {
                 return new BadRequestResult();
             }
 
-            return new JsonResult(id);
+            return new JsonResult(refTime);
         }
 
         [HttpGet("~/api/[controller]/{id}/[action]")]
-        public async Task<string> Tweets(string id)
+        public async Task<string> Tweets(string id, DateTimeReference refTime)
         {
-            this.twitterUtils.Configurate("oauth1", $"/users/{id}/tweets", Method.GET);
+            this.twitterUtils.Configurate("oauth1", $"/users/{id}/tweets", Method.Get);
 
             List<string> parametersValue = await context.Parameters
                         .Where(p => p.Selected == true && p.TwitterObjectId == 3)
@@ -103,14 +104,16 @@ namespace TwitterHelper.Api.Controllers
 
             while (!(tweetsCount >= 1000))
             {
-                IRestResponse response = this.twitterUtils.Client.Execute(this.twitterUtils.Request);
+                this.helper.WaitCalculatedTime(100, refTime.UsersLookupTime);
+
+                RestResponse response = await this.twitterUtils.Client.ExecuteAsync(this.twitterUtils.Request);
                 var jsonResponse = JToken.Parse(response.Content).ToString(Formatting.Indented);
 
                 Tweets tweets = new(jsonResponse);
 
                 if (tweets.TweetsData is null || tweets.AllTweets is null)
                 {
-                    System.Threading.Thread.Sleep(950);
+                    refTime.TimelinesTime = DateTime.Now;
                     break;
                 }
 
@@ -124,7 +127,7 @@ namespace TwitterHelper.Api.Controllers
 
                 this.helper.SaveTweets(tweets, tweetsPath);
 
-                System.Threading.Thread.Sleep(950);
+                refTime.TimelinesTime = DateTime.Now;
             }
 
             return tweetsCount.ToString();
@@ -134,7 +137,7 @@ namespace TwitterHelper.Api.Controllers
         [HttpGet("~/api/[controller]/[action]")]
         public async Task<string> Random()
         {
-            this.twitterUtils.Configurate("oauth1", $"/tweets/search/recent", Method.GET);
+            this.twitterUtils.Configurate("oauth1", $"/tweets/search/recent", Method.Get);
 
             List<string> parametersValue = await context.Parameters
                                     .Where(p => p.Selected == true && p.TwitterObjectId == 3)
@@ -151,7 +154,7 @@ namespace TwitterHelper.Api.Controllers
             if (parametersValue.Count != 0)
                 this.twitterUtils.AddParameters("tweet.fields", parametersValue);
 
-            IRestResponse response = this.twitterUtils.Client.Execute(this.twitterUtils.Request);
+            RestResponse response = await this.twitterUtils.Client.ExecuteAsync(this.twitterUtils.Request);
             var jsonResponse = JToken.Parse(response.Content).ToString(Formatting.Indented);
 
             Tweets tweets = new(jsonResponse);
@@ -161,10 +164,10 @@ namespace TwitterHelper.Api.Controllers
             var userId = JToken.Parse(response.Content)["data"][randomTweet]["author_id"].ToString();
 
             this.twitterUtils.RemoveParameters();
-            this.twitterUtils.Configurate("oauth1", $"/users/by", Method.GET);
+            this.twitterUtils.Configurate("oauth1", $"/users/by", Method.Get);
             this.twitterUtils.AddParameters("id", tweets.AllTweets.Select(tweet => tweet.Author_id).ToList());
 
-            IRestResponse response2 = this.twitterUtils.Client.Execute(this.twitterUtils.Request);
+            RestResponse response2 = await this.twitterUtils.Client.ExecuteAsync(this.twitterUtils.Request);
             var jsonResponse2 = JToken.Parse(response2.Content).ToString(Formatting.Indented);
 
             return jsonResponse2;

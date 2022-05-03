@@ -15,5 +15,6 @@ namespace TwitterHelper.Web.Data
 
         public DbSet<TwitterObject> TwitterObjects { get; set; }
         public DbSet<Parameter> Parameters { get; set; }
+        public DbSet<DateTimeReference> DateTimeReferences { get; set; }
     }
 }

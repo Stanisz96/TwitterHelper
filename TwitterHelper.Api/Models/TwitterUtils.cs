@@ -20,7 +20,9 @@ namespace TwitterHelper.Api.Models
         {
             TwitterConf = new TwitterConfig()
             {
-                ApiConfig = new ApiConfig() { Url = "https://api.twitter.com/2" },
+                ApiConfig = new ApiConfig() { 
+                    Uri = new Uri("https://api.twitter.com/2") 
+                },
                 ConsumerKey = "JtdZsNykzMMrHBk2RDZXhiVXK",
                 ConsumerSecret = "NgtSpMUZhqBfAXJJbd85JLsZhz3s66NeCTf3c7MMxk3WKp0J7T",
                 AccessToken = "1352246343939592192-ipJF7X11SltwcViscSsmMYJaQTiwTQ",
@@ -28,8 +30,11 @@ namespace TwitterHelper.Api.Models
                 BearerToken = "AAAAAAAAAAAAAAAAAAAAANb0PAEAAAAALvyTXVWdjhfNbiwal5OtXemTY1s%3DHi4fADk8spniPqatwUJD9keWD7685NVwDMaD6TuvzvniO5eka4"
             };
 
-            Client = new RestClient(TwitterConf.ApiConfig.Url);
-            Client.Timeout = -1;
+            Client = new RestClient(new RestClientOptions
+            {
+                Timeout = -1,
+                BaseUrl = TwitterConf.ApiConfig.Uri
+            });
 
             Request = new RestRequest();
         }
@@ -81,7 +86,11 @@ namespace TwitterHelper.Api.Models
 
         public void RemoveParameters()
         {
-            this.Request.Parameters.Clear();
+            foreach (RestSharp.Parameter parameter in 
+                this.Request.Parameters.GetParameters(ParameterType.QueryString))
+            {
+                this.Request.Parameters.RemoveParameter(parameter);
+            }
         }
 
         private void setBearerToken()

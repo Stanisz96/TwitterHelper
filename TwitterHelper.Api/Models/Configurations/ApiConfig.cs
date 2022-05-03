@@ -1,7 +1,9 @@
-﻿namespace TwitterHelper.Api.Models.Configurations
+﻿using System;
+
+namespace TwitterHelper.Api.Models.Configurations
 {
     public class ApiConfig
     {
-        public string Url { get; set; }
+        public Uri Uri { get; set; }
     }
 }
