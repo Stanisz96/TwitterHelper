@@ -49,11 +49,11 @@ namespace TwitterHelper.Api.Tools
 
         public void WaitCalculatedTime(int limitReqPerMin, DateTime dateTimeReference)
         {
-            int minDiffSec = (int)(60 / limitReqPerMin + 1);
-            int diffSeconds = minDiffSec - (DateTime.Now - dateTimeReference).Seconds;
-            int waitSeconds = diffSeconds < 0 ? 0 : diffSeconds;
-            if (waitSeconds > 0)
-                System.Threading.Thread.Sleep(waitSeconds * 1000);
+            int minDiffMSec = (int)((60 / limitReqPerMin + 0.1) * 1000);
+            int diffMSeconds = minDiffMSec - (DateTime.Now - dateTimeReference).Milliseconds;
+            int waitMSeconds = diffMSeconds < 0 ? 0 : diffMSeconds;
+            if (waitMSeconds > 0)
+                System.Threading.Thread.Sleep(waitMSeconds);
         }
     }
 }
