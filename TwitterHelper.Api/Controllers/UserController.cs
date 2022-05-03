@@ -150,7 +150,7 @@ namespace TwitterHelper.Api.Controllers
         {
             this.twitterUtils.Configurate("oauth1", $"/tweets/search/recent", Method.Get);
 
-            List<string> parametersValue = await context.Parameters
+            List<string> parametersTweetsValue = await context.Parameters
                                     .Where(p => p.Selected == true && p.TwitterObjectId == 3)
                                     .Select(p => p.Value).ToListAsync();
 
@@ -162,8 +162,8 @@ namespace TwitterHelper.Api.Controllers
             this.twitterUtils.AddParameter("start_time", this.helper.ToTwitterTimeStamp(startTime));
             this.twitterUtils.AddParameter("end_time", this.helper.ToTwitterTimeStamp(endTime));
             this.twitterUtils.AddParameter("max_results", "100");
-            if (parametersValue.Count != 0)
-                this.twitterUtils.AddParameters("tweet.fields", parametersValue);
+            if (parametersTweetsValue.Count != 0)
+                this.twitterUtils.AddParameters("tweet.fields", parametersTweetsValue);
 
             var refTime = await context.DateTimeReferences.FirstAsync();
             this.helper.WaitCalculatedTime(12, refTime.TweetsSearchTime);
@@ -177,24 +177,39 @@ namespace TwitterHelper.Api.Controllers
 
             int result_count = Int32.Parse(tweets.Meta.result_count);
             int randomTweet = new Random().Next(1, result_count);
-            var userId = JToken.Parse(response.Content)["data"][randomTweet]["author_id"].ToString();
+            var userIds = tweets.AllTweets.Select(tweet => tweet.Author_id).ToList();
 
-            this.twitterUtils.RemoveParameters();
-            this.twitterUtils.Configurate("oauth1", $"/users/by", Method.Get);
-            this.twitterUtils.AddParameters("id", tweets.AllTweets.Select(tweet => tweet.Author_id).ToList());
+            string foundedUserId = "ERROR";
+            int countEnglishTweets = 0;
+            int countAllTweets = 0;
+            foreach (string userId in userIds)
+            {
+                this.twitterUtils.RemoveParameters();
+                this.twitterUtils.Configurate("oauth1", $"/users/{userId}/tweets", Method.Get);
+                this.twitterUtils.AddParameter("max_results", "100");
+                if (parametersTweetsValue.Count != 0)
+                    this.twitterUtils.AddParameters("tweet.fields", parametersTweetsValue);
 
+                this.helper.WaitCalculatedTime(100, refTime.TimelinesTime);
+                response = await this.twitterUtils.Client.ExecuteAsync(this.twitterUtils.Request);
+                jsonResponse = JToken.Parse(response.Content).ToString(Formatting.Indented);
+                tweets = new(jsonResponse);
+                countEnglishTweets = tweets.AllTweets.Count(t => t.Lang == "en");
+                countAllTweets = tweets.AllTweets.Count();
 
-            this.helper.WaitCalculatedTime(20, refTime.UsersLookupTime);
+                refTime.TimelinesTime = DateTime.Now;
 
-            RestResponse response2 = await this.twitterUtils.Client.ExecuteAsync(this.twitterUtils.Request);
-            var jsonResponse2 = JToken.Parse(response2.Content).ToString(Formatting.Indented);
-
-            refTime.UsersLookupTime = DateTime.Now;
+                if (countEnglishTweets / countAllTweets > 0.5)
+                {
+                    foundedUserId = userId;
+                    break;
+                }
+            }
 
             context.Update(refTime);
             await context.SaveChangesAsync();
 
-            return jsonResponse2;
+            return foundedUserId;
         }
 
         [HttpGet("~/api/[controller]/[action]")]

@@ -91,6 +91,12 @@ namespace TwitterHelper.Api.Models
             {
                 this.Request.Parameters.RemoveParameter(parameter);
             }
+
+            foreach (RestSharp.Parameter parameter in
+                this.Request.Parameters.GetParameters(ParameterType.QueryString))
+            {
+                this.Request.Parameters.RemoveParameter(parameter);
+            }
         }
 
         private void setBearerToken()
