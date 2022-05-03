@@ -10,8 +10,8 @@ using TwitterHelper.Web.Data;
 namespace TwitterHelper.Web.Migrations
 {
     [DbContext(typeof(TwitterContext))]
-    [Migration("20220503160800_init")]
-    partial class init
+    [Migration("20220503184548_init5")]
+    partial class init5
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -38,6 +38,9 @@ namespace TwitterHelper.Web.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("TweetsLookupTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("TweetsSearchTime")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("UsersLookupTime")

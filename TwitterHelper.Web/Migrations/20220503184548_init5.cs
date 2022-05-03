@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace TwitterHelper.Web.Migrations
 {
-    public partial class init : Migration
+    public partial class init5 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -17,7 +17,8 @@ namespace TwitterHelper.Web.Migrations
                     TweetsLookupTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     TimelinesTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     FilteredStreamTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    FollowsTime = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    FollowsTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    TweetsSearchTime = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {

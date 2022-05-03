@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using TwitterHelper.Api.Data;
 using TwitterHelper.Api.Models;
@@ -163,6 +164,9 @@ namespace TwitterHelper.Api.Controllers
             this.twitterUtils.AddParameter("max_results", "100");
             if (parametersValue.Count != 0)
                 this.twitterUtils.AddParameters("tweet.fields", parametersValue);
+
+            var refTime = await context.DateTimeReferences.FirstAsync();
+            this.helper.WaitCalculatedTime(100, refTime.TimelinesTime);
 
             RestResponse response = await this.twitterUtils.Client.ExecuteAsync(this.twitterUtils.Request);
             var jsonResponse = JToken.Parse(response.Content).ToString(Formatting.Indented);

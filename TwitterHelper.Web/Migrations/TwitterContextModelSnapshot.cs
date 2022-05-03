@@ -38,6 +38,9 @@ namespace TwitterHelper.Web.Migrations
                     b.Property<DateTime>("TweetsLookupTime")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime>("TweetsSearchTime")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("UsersLookupTime")
                         .HasColumnType("datetime2");
 

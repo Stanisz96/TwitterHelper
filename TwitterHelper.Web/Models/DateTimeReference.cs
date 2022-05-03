@@ -62,11 +62,23 @@ namespace TwitterHelper.Web.Models
 
             set { this.followsTime = value; }
         }
-         
+        public DateTime TweetsSearchTime
+        {
+            get
+            {
+                return this.tweetsSearchTime.HasValue
+                    ? this.tweetsSearchTime.Value
+                    : DateTime.Now;
+            }
+
+            set { this.followsTime = value; }
+        }
+
         private DateTime? usersLookupTime = null; 
         private DateTime? tweetsLookupTime = null; 
         private DateTime? timelinesTime = null; 
         private DateTime? filteredStreamTime = null; 
         private DateTime? followsTime = null; 
+        private DateTime? tweetsSearchTime = null; 
     }
 }
