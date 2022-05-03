@@ -166,10 +166,12 @@ namespace TwitterHelper.Api.Controllers
                 this.twitterUtils.AddParameters("tweet.fields", parametersValue);
 
             var refTime = await context.DateTimeReferences.FirstAsync();
-            this.helper.WaitCalculatedTime(100, refTime.TimelinesTime);
+            this.helper.WaitCalculatedTime(12, refTime.TweetsSearchTime);
 
             RestResponse response = await this.twitterUtils.Client.ExecuteAsync(this.twitterUtils.Request);
             var jsonResponse = JToken.Parse(response.Content).ToString(Formatting.Indented);
+
+            refTime.TweetsSearchTime = DateTime.Now;
 
             Tweets tweets = new(jsonResponse);
 
@@ -181,15 +183,27 @@ namespace TwitterHelper.Api.Controllers
             this.twitterUtils.Configurate("oauth1", $"/users/by", Method.Get);
             this.twitterUtils.AddParameters("id", tweets.AllTweets.Select(tweet => tweet.Author_id).ToList());
 
+
+            this.helper.WaitCalculatedTime(20, refTime.UsersLookupTime);
+
             RestResponse response2 = await this.twitterUtils.Client.ExecuteAsync(this.twitterUtils.Request);
             var jsonResponse2 = JToken.Parse(response2.Content).ToString(Formatting.Indented);
+
+            refTime.UsersLookupTime = DateTime.Now;
+
+            context.Update(refTime);
+            await context.SaveChangesAsync();
 
             return jsonResponse2;
         }
 
         [HttpGet("~/api/[controller]/[action]")]
-        public string Test()
+        public async Task<string> Test()
         {
+            DateTimeReference dateTimeReference = new();
+            context.Update(dateTimeReference);
+            await context.SaveChangesAsync();
+
             return "Hello, I am Test Reqest :P.";
         }
     }

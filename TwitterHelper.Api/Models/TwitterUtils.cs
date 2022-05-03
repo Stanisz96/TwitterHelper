@@ -87,7 +87,7 @@ namespace TwitterHelper.Api.Models
         public void RemoveParameters()
         {
             foreach (RestSharp.Parameter parameter in 
-                this.Request.Parameters.GetParameters(ParameterType.QueryString))
+                this.Request.Parameters.GetParameters(ParameterType.GetOrPost))
             {
                 this.Request.Parameters.RemoveParameter(parameter);
             }
