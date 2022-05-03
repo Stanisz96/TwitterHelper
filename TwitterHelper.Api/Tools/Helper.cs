@@ -52,7 +52,8 @@ namespace TwitterHelper.Api.Tools
             int minDiffSec = (int)(60 / limitReqPerMin + 1);
             int diffSeconds = minDiffSec - (DateTime.Now - dateTimeReference).Seconds;
             int waitSeconds = diffSeconds < 0 ? 0 : diffSeconds;
-            System.Threading.Thread.Sleep(waitSeconds * 1000);
+            if (waitSeconds > 0)
+                System.Threading.Thread.Sleep(waitSeconds * 1000);
         }
     }
 }
