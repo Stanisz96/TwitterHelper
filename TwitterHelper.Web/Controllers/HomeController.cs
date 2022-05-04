@@ -45,7 +45,7 @@ namespace TwitterHelper.Web.Controllers
             List<string> userIds = await this.twitterHelperApi.GetRandomUsers();
             foreach (string userId in userIds)
             {
-                var response = await this.twitterHelperApi.SaveUserData("userId");
+                var response = await this.twitterHelperApi.SaveUserData(userId);
                 if (response is not null)
                 {
                     await this.twitterHelperApi.SaveUserTweetsData(userId);
