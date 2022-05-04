@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json.Linq;
 using RestSharp;
 using RestSharp.Authenticators;
 using System;
@@ -15,19 +16,22 @@ namespace TwitterHelper.Api.Models
         public RestClient Client { get; set; }
         public RestRequest Request { get; set; }
         public TwitterConfig TwitterConf { get; set; }
+        public string KeyFileName { get; set; }
 
         public TwitterUtils()
         {
+            this.KeyFileName = Path.Combine(Environment.CurrentDirectory, @"App_Data\", "keys.txt");
+
             TwitterConf = new TwitterConfig()
             {
                 ApiConfig = new ApiConfig() { 
                     Uri = new Uri("https://api.twitter.com/2") 
                 },
-                ConsumerKey = "JtdZsNykzMMrHBk2RDZXhiVXK",
-                ConsumerSecret = "NgtSpMUZhqBfAXJJbd85JLsZhz3s66NeCTf3c7MMxk3WKp0J7T",
-                AccessToken = "1352246343939592192-ipJF7X11SltwcViscSsmMYJaQTiwTQ",
-                AccessSecret = "0yLAO23it6kX2GuMUHvnJDsYaD8zROWOA9VmNiGwtJB8j",
-                BearerToken = "AAAAAAAAAAAAAAAAAAAAANb0PAEAAAAALvyTXVWdjhfNbiwal5OtXemTY1s%3DHi4fADk8spniPqatwUJD9keWD7685NVwDMaD6TuvzvniO5eka4"
+                ConsumerKey = GetLine(this.KeyFileName, 1),
+                ConsumerSecret = GetLine(this.KeyFileName, 2),
+                AccessToken = GetLine(this.KeyFileName, 4),
+                AccessSecret = GetLine(this.KeyFileName, 5),
+                BearerToken = GetLine(this.KeyFileName, 3)
             };
 
             Client = new RestClient(new RestClientOptions
@@ -129,6 +133,17 @@ namespace TwitterHelper.Api.Models
             JObject jobjectResponse = JObject.Parse(responseJson);
 
             this.TwitterConf.BearerToken = jobjectResponse["access_token"].ToString();
+        }
+
+
+        public string GetLine(string fileName, int line)
+        {
+            using (var sr = new StreamReader(fileName))
+            {
+                for (int i = 1; i < line; i++)
+                    sr.ReadLine();
+                return sr.ReadLine();
+            }
         }
     }
 }

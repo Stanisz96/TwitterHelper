@@ -106,7 +106,7 @@ namespace TwitterHelper.Api.Controllers
             int count = 100;
 
 
-            while (!(tweetsCount >= 1000))
+            while (!(tweetsCount >= 10000))
             {
                 var refTime = await context.DateTimeReferences.FirstAsync();
                 this.helper.WaitCalculatedTime(100, refTime.TimelinesTime);
@@ -179,7 +179,7 @@ namespace TwitterHelper.Api.Controllers
             int randomTweet = new Random().Next(1, result_count);
             var userIds = tweets.AllTweets.Select(tweet => tweet.Author_id).ToList();
 
-            string foundedUserId = "ERROR";
+            string foundedUserId = null;
             int countEnglishTweets = 0;
             int countAllTweets = 0;
             foreach (string userId in userIds)
