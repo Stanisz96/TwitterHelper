@@ -51,7 +51,10 @@ namespace TwitterHelper.Api.Controllers
             if (parametersValue.Count != 0)
                 this.twitterUtils.AddParameters("user.fields", parametersValue);
 
-            this.twitterUtils.AddParameter("max_results", "300");
+            this.twitterUtils.AddParameter("max_results", "1000");
+
+            var refTime = await context.DateTimeReferences.FirstAsync();
+            this.helper.WaitCalculatedTime(1, refTime.FollowsTime);
 
             RestResponse response = await this.twitterUtils.Client.ExecuteAsync(this.twitterUtils.Request);
             var jsonResponse = JToken.Parse(response.Content).ToString(Formatting.Indented);
@@ -79,6 +82,10 @@ namespace TwitterHelper.Api.Controllers
                 count += 1;
             }
 
+            refTime.FollowsTime = DateTime.Now;
+
+            context.Update(refTime);
+            await context.SaveChangesAsync();
 
             if (!jsonResponse.Any())
             {
@@ -112,9 +119,13 @@ namespace TwitterHelper.Api.Controllers
 
                 int tweetsCount = 0;
                 int count = 100;
+                DateTimeReference refTime;
 
-                while (!(tweetsCount >= 1000))
+                while (!(tweetsCount >= 3000 || count == 0))
                 {
+                    refTime = await context.DateTimeReferences.FirstAsync();
+                    this.helper.WaitCalculatedTime(100, refTime.TimelinesTime);
+
                     RestResponse response = await this.twitterUtils.Client.ExecuteAsync(this.twitterUtils.Request);
                     var jsonResponse = JToken.Parse(response.Content).ToString(Formatting.Indented);
 
@@ -123,7 +134,10 @@ namespace TwitterHelper.Api.Controllers
 
                     if (tweets.TweetsData is null || tweets.AllTweets is null)
                     {
-                        System.Threading.Thread.Sleep(950);
+                        refTime.TimelinesTime = DateTime.Now;
+
+                        context.Update(refTime);
+                        await context.SaveChangesAsync();
                         break;
                     }
 
@@ -136,10 +150,17 @@ namespace TwitterHelper.Api.Controllers
                     {
                         this.twitterUtils.AddParameter("pagination_token", tweets.Meta.next_token);
                     }
+                    else
+                    {
+                        count = 0;
+                    }
 
                     this.helper.SaveTweets(tweets, userDirPath);
 
-                    System.Threading.Thread.Sleep(950);
+                    refTime.TimelinesTime = DateTime.Now;
+
+                    context.Update(refTime);
+                    await context.SaveChangesAsync();
                 }
             }
 

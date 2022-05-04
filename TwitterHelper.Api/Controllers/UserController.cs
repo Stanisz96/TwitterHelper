@@ -104,11 +104,11 @@ namespace TwitterHelper.Api.Controllers
 
             int tweetsCount = 0;
             int count = 100;
+            DateTimeReference refTime;
 
-
-            while (!(tweetsCount >= 10000))
+            while (!(tweetsCount >= 3000 || count == 0))
             {
-                var refTime = await context.DateTimeReferences.FirstAsync();
+                refTime = await context.DateTimeReferences.FirstAsync();
                 this.helper.WaitCalculatedTime(100, refTime.TimelinesTime);
 
                 RestResponse response = await this.twitterUtils.Client.ExecuteAsync(this.twitterUtils.Request);
@@ -131,6 +131,10 @@ namespace TwitterHelper.Api.Controllers
                 if (tweets.Meta.next_token is not null)
                 {
                     this.twitterUtils.AddParameter("pagination_token", tweets.Meta.next_token);
+                }
+                else
+                {
+                    count = 0;
                 }
 
                 this.helper.SaveTweets(tweets, tweetsPath);
