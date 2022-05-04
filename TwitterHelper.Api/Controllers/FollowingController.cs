@@ -67,19 +67,24 @@ namespace TwitterHelper.Api.Controllers
 
             foreach (User user in users.AllUsers)
             {
-                string userPath = Path.Combine(followingPath, $"{users.UsersData.ElementAt(count)["id"]}");
-                DirectoryInfo userDirectory = Directory.CreateDirectory(userPath);
-                userDirectory.CreateSubdirectory("tweeted");
-                userDirectory.CreateSubdirectory("retweeted");
-                userDirectory.CreateSubdirectory("replied_to");
-                userDirectory.CreateSubdirectory("quoted");
+                bool isProtected = user.Protected;
 
-                string jsonData = users.UsersData.ElementAt(count).ToString(Formatting.Indented);
+                if (!isProtected)
+                {
+                    string userPath = Path.Combine(followingPath, $"{users.UsersData.ElementAt(count)["id"]}");
+                    DirectoryInfo userDirectory = Directory.CreateDirectory(userPath);
+                    userDirectory.CreateSubdirectory("tweeted");
+                    userDirectory.CreateSubdirectory("retweeted");
+                    userDirectory.CreateSubdirectory("replied_to");
+                    userDirectory.CreateSubdirectory("quoted");
 
-                string dataPath = Path.Combine(userPath, "data.json");
-                File.WriteAllText(dataPath, jsonData);
+                    string jsonData = users.UsersData.ElementAt(count).ToString(Formatting.Indented);
 
-                count += 1;
+                    string dataPath = Path.Combine(userPath, "data.json");
+                    File.WriteAllText(dataPath, jsonData);
+
+                    count += 1;
+                }
             }
 
             refTime.FollowsTime = DateTime.Now;

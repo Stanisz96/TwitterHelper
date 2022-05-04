@@ -57,6 +57,11 @@ namespace TwitterHelper.Api.Controllers
             RestResponse response = await this.twitterUtils.Client.ExecuteAsync(this.twitterUtils.Request);
             var jsonResponse = JToken.Parse(response.Content).ToString(Formatting.Indented);
 
+            bool isProtected = JObject.Parse(jsonResponse)["data"].ToObject<User>().Protected;
+
+            if (isProtected)
+                return new JsonResult(null);
+
             string userPath = Path.Combine(this.rootPath, $"Data\\users\\{id}");
             DirectoryInfo userDirectory = Directory.CreateDirectory(userPath);
             userDirectory.CreateSubdirectory("tweeted");
@@ -80,7 +85,7 @@ namespace TwitterHelper.Api.Controllers
                 return new BadRequestResult();
             }
 
-            return new JsonResult(refTime);
+            return new JsonResult(id);
         }
 
         [HttpGet("~/api/[controller]/{id}/[action]")]

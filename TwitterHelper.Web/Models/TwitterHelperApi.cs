@@ -21,7 +21,7 @@ namespace TwitterHelper.Web.Models
             this.Client.BaseAddress = new Uri(this.BaseUrl);
             this.Client.DefaultRequestHeaders.Clear();
             this.Client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            this.Client.Timeout = TimeSpan.FromMinutes(10);
+            this.Client.Timeout = TimeSpan.Zero;
 
         }
 

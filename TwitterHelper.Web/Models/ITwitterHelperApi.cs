@@ -9,7 +9,7 @@ namespace TwitterHelper.Web.Models
     {
         public string BaseUrl { get; set; }
 
-        public Task<string> GetRandomUsers();
+        public Task<List<string>> GetRandomUsers();
         public Task<string> SaveUserData(string id);
         public Task<string> SaveUserTweetsData(string id);
         public Task<string> SaveFollowingData(string id);

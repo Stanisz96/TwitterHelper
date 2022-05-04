@@ -42,20 +42,13 @@ namespace TwitterHelper.Web.Controllers
 
         public async Task<IActionResult> GetData()
         {
-            string userId = await this.twitterHelperApi.GetRandomUser();
-            //await this.twitterHelperApi.SaveUserData(userId);
+            //List<string> userIds = await this.twitterHelperApi.GetRandomUsers();
+            await this.twitterHelperApi.SaveUserData("1352246343939592192");
             //await this.twitterHelperApi.SaveUserTweetsData(userId);
             //await this.twitterHelperApi.SaveFollowingData(userId);
             //await this.twitterHelperApi.SaveFollowingTweetsData(userId);
 
-            if (!String.IsNullOrEmpty(userId))
-            {
-                IEnumerable<Models.Parameter> Parameters = await context.Parameters.ToListAsync();
-                TempData["testUserId"] = userId;
-                return RedirectToAction("Index", Parameters);
-            }
-            TempData["testUserId"] = "NULL!";
-            return NotFound();
+              return RedirectToAction("GetData");
         }
 
 
