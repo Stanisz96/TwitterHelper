@@ -65,6 +65,9 @@ namespace TwitterHelper.Api.Controllers
             Users users = new Users(jsonResponse);
             var count = 0;
 
+            if (users is null)
+                return new JsonResult(id);
+
             foreach (User user in users.AllUsers)
             {
                 bool isProtected = user.Protected;
@@ -145,6 +148,7 @@ namespace TwitterHelper.Api.Controllers
                         await context.SaveChangesAsync();
                         break;
                     }
+
 
 
                     count = Int32.Parse(tweets.Meta.result_count);
