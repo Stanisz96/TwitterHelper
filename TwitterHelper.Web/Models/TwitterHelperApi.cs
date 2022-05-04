@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -24,22 +26,19 @@ namespace TwitterHelper.Web.Models
         }
 
 
-        public async Task<string> GetRandomUser()
+        public async Task<List<string>> GetRandomUsers()
         {
-            HttpResponseMessage Response = await this.Client.GetAsync("api/User/Random");
+            HttpResponseMessage Response = await this.Client.GetAsync("api/User/Randoms");
 
             if (Response.IsSuccessStatusCode)
             {
-                var jsonResponse = Response.Content.ReadAsStringAsync().Result;
+                string jsonResponse = Response.Content.ReadAsStringAsync().Result;
 
-                string userId = string.Empty;
-                for (int i = 0; i < jsonResponse.Length; i++)
-                {
-                    if (Char.IsDigit(jsonResponse[i]))
-                        userId += jsonResponse[i];
-                }
+                var list = jsonResponse.TrimStart('[')
+                            .TrimEnd(']')
+                            .Split(new[] { '"', ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
 
-                return userId;
+                return list;
             }
 
             return null;
