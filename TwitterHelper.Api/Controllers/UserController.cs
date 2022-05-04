@@ -150,8 +150,10 @@ namespace TwitterHelper.Api.Controllers
 
 
         [HttpGet("~/api/[controller]/[action]")]
-        public async Task<string> Random()
+        public async Task<List<string>> Randoms()
         {
+            List<string> userIdList = new List<string>();
+
             this.twitterUtils.Configurate("oauth1", $"/tweets/search/recent", Method.Get);
 
             List<string> parametersTweetsValue = await context.Parameters
@@ -183,7 +185,6 @@ namespace TwitterHelper.Api.Controllers
             int randomTweet = new Random().Next(1, result_count);
             var userIds = tweets.AllTweets.Select(tweet => tweet.Author_id).ToList();
 
-            string foundedUserId = null;
             int countEnglishTweets = 0;
             int countAllTweets = 0;
             foreach (string userId in userIds)
@@ -205,15 +206,14 @@ namespace TwitterHelper.Api.Controllers
 
                 if (countEnglishTweets / countAllTweets > 0.5)
                 {
-                    foundedUserId = userId;
-                    break;
+                    userIdList.Add(userId);
                 }
             }
 
             context.Update(refTime);
             await context.SaveChangesAsync();
 
-            return foundedUserId;
+            return userIdList;
         }
 
         [HttpGet("~/api/[controller]/[action]")]

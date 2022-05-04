@@ -15,7 +15,8 @@ namespace TwitterHelper.Api.Models
         public string Description { get; set; }
         public string Location { get; set; }
         public UserPublicMetrics Public_metrics { get; set; }
-        public string Verified { get; set; }
+        public bool Verified { get; set; }
+        public bool Protected { get; set; }
 
     }
 }
