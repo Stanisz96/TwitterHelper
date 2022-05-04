@@ -222,13 +222,13 @@ namespace TwitterHelper.Api.Controllers
         }
 
         [HttpGet("~/api/[controller]/[action]")]
-        public async Task<string> Test()
+        public async Task<IActionResult> Test()
         {
-            DateTimeReference dateTimeReference = new();
-            context.Update(dateTimeReference);
-            await context.SaveChangesAsync();
+            //DateTimeReference dateTimeReference = new();
+            //context.Update(dateTimeReference);
+            //await context.SaveChangesAsync();
 
-            return "Hello, I am Test Reqest :P.";
+            return new JsonResult(null);
         }
     }
 }
