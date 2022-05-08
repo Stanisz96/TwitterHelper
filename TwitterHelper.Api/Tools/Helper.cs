@@ -50,10 +50,11 @@ namespace TwitterHelper.Api.Tools
         public void WaitCalculatedTime(double limitReqPerMin, DateTime dateTimeReference)
         {
             double minDiffMSec = ((60 / limitReqPerMin) + 0.2) * 1000;
-            int diffMSeconds = (int)minDiffMSec - (DateTime.Now - dateTimeReference).Milliseconds;
-            int waitMSeconds = diffMSeconds < 0 ? 0 : diffMSeconds;
+            double diffMSeconds = minDiffMSec - (DateTime.Now - dateTimeReference).TotalMilliseconds;
+            Debug.WriteIf(true, diffMSeconds.ToString());
+            double waitMSeconds = diffMSeconds < 0 ? 0 : diffMSeconds;
             if (waitMSeconds > 0)
-                System.Threading.Thread.Sleep(waitMSeconds);
+                System.Threading.Thread.Sleep((int)waitMSeconds);
         }
     }
 }

@@ -10,7 +10,7 @@ namespace TwitterHelper.Api.Tools
     {
         public string ToTwitterTimeStamp(DateTime dateTime);
         public void SaveTweets(Tweets tweets, string userDirPath);
-        public void WaitCalculatedTime(int limitReqPerMin, DateTime dateTimeReference);
+        public void WaitCalculatedTime(double limitReqPerMin, DateTime dateTimeReference);
 
 
     }
