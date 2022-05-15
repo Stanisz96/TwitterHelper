@@ -34,7 +34,7 @@ namespace TwitterHelper.Api.Controllers
             this.twitterUtils = twitterUtils;
             this.hostingEnv = hostingEnv;
             this.context = context;
-            this.rootPath = "D:\\Magisterka";
+            this.rootPath = "C:\\Magisterka";
             this.helper = helper;
         }
 

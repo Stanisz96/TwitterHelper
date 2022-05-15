@@ -12,6 +12,7 @@ namespace TwitterHelper.Api.Models
         public void AddParameter(string parameterName, string parameterValue);
         public void AddParameters(string parameterName, List<string> parameterValues);
         public void RemoveParameters();
+        public void RemoveParameter(string parameterName);
         public void AddQuery(string queryValue);
         public string GetLine(string fileName, int line);
     }

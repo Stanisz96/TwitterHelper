@@ -33,7 +33,7 @@ namespace TwitterHelper.Api.Controllers
             this.twitterUtils = twitterUtils;
             this.hostingEnv = hostingEnv;
             this.context = context;
-            this.rootPath = "D:\\Magisterka";
+            this.rootPath = "C:\\Magisterka";
             this.helper = helper;
         }
 
@@ -51,7 +51,7 @@ namespace TwitterHelper.Api.Controllers
             if (parametersValue.Count != 0)
                 this.twitterUtils.AddParameters("user.fields", parametersValue);
 
-            this.twitterUtils.AddParameter("max_results", "1000");
+            this.twitterUtils.AddParameter("max_results", "300");
 
             var refTime = await context.DateTimeReferences.FirstAsync();
             this.helper.WaitCalculatedTime(1, refTime.FollowsTime);
@@ -65,7 +65,7 @@ namespace TwitterHelper.Api.Controllers
             Users users = new Users(jsonResponse);
             var count = 0;
 
-            if (users is null)
+            if (users.AllUsers is null)
                 return new JsonResult(id);
 
             foreach (User user in users.AllUsers)
@@ -124,12 +124,13 @@ namespace TwitterHelper.Api.Controllers
             {
                 string subUserId = userDirPath.Remove(0, followingUsersDirPath.Length + 1);
                 this.twitterUtils.Configurate("oauth1", $"/users/{subUserId}/tweets", Method.Get);
+                this.twitterUtils.RemoveParameter("pagination_token");
 
                 int tweetsCount = 0;
                 int count = 100;
                 DateTimeReference refTime;
 
-                while (!(tweetsCount >= 3000 || count == 0))
+                while (!(tweetsCount >= 1000 || count == 0))
                 {
                     refTime = await context.DateTimeReferences.FirstAsync();
                     this.helper.WaitCalculatedTime(100, refTime.TimelinesTime);

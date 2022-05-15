@@ -103,6 +103,11 @@ namespace TwitterHelper.Api.Models
             }
         }
 
+        public void RemoveParameter(string parameterName)
+        {
+            this.Request.Parameters.RemoveParameter(parameterName);
+        }
+
         private void setBearerToken()
         {
             string strBearerRequest = HttpUtility.UrlEncode(this.TwitterConf.ConsumerKey) +
