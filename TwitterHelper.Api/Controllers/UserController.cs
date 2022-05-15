@@ -130,12 +130,12 @@ namespace TwitterHelper.Api.Controllers
                     break;
                 }
 
-                count = Int32.Parse(tweets.Meta.result_count);
+                count = Int32.Parse(tweets.Meta.Result_count);
                 tweetsCount += count;
 
-                if (tweets.Meta.next_token is not null)
+                if (tweets.Meta.Next_token is not null)
                 {
-                    this.twitterUtils.AddParameter("pagination_token", tweets.Meta.next_token);
+                    this.twitterUtils.AddParameter("pagination_token", tweets.Meta.Next_token);
                 }
                 else
                 {
@@ -157,7 +157,7 @@ namespace TwitterHelper.Api.Controllers
         [HttpGet("~/api/[controller]/[action]")]
         public async Task<List<string>> Randoms()
         {
-            List<string> userIdList = new List<string>();
+            List<string> userIdList = new();
 
             this.twitterUtils.Configurate("oauth1", $"/tweets/search/recent", Method.Get);
 
@@ -186,8 +186,8 @@ namespace TwitterHelper.Api.Controllers
 
             Tweets tweets = new(jsonResponse);
 
-            int result_count = Int32.Parse(tweets.Meta.result_count);
-            int randomTweet = new Random().Next(1, result_count);
+            int Result_count = Int32.Parse(tweets.Meta.Result_count);
+            int randomTweet = new Random().Next(1, Result_count);
             var userIds = tweets.AllTweets.Select(tweet => tweet.Author_id).ToList();
 
             int countEnglishTweets = 0;
@@ -222,13 +222,13 @@ namespace TwitterHelper.Api.Controllers
         }
 
         [HttpGet("~/api/[controller]/[action]")]
-        public async Task<IActionResult> Test()
+        public Task<string> Test()
         {
             //DateTimeReference dateTimeReference = new();
             //context.Update(dateTimeReference);
             //await context.SaveChangesAsync();
 
-            return new JsonResult(null);
+            return Task.FromResult(String.Empty);
         }
     }
 }

@@ -7,7 +7,7 @@ namespace TwitterHelper.Api.Models
 {
     public class TweetsMeta
     {
-        public string result_count { get; set; }
-        public string next_token { get; set; }
+        public string Result_count { get; set; }
+        public string Next_token { get; set; }
     }
 }

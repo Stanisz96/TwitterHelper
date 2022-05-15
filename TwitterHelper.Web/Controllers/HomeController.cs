@@ -58,9 +58,9 @@ namespace TwitterHelper.Web.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> _selectedParametersPartial(string[] dataString, int twitterObjectId)
+        public async Task<IActionResult> SelectedParametersPartial(string[] dataString, int twitterObjectId)
         {
-            List<int> dataArray = new List<int>();
+            List<int> dataArray = new();
 
             foreach (string str in dataString)
             {
@@ -70,18 +70,18 @@ namespace TwitterHelper.Web.Controllers
             }
 
             bool isEven;
-            List<Models.Parameter> parameters = new List<Models.Parameter>();
-            Models.Parameter tempParameter;
+            List<Parameter> parameters = new();
+            Parameter tempParameter;
 
             for (int i = 0; i < dataArray.Count; i++)
             {
-                isEven = i % 2 == 0 ? true : false;
+                isEven = i % 2 == 0;
 
                 if (isEven)
                 {
                     tempParameter = await context.Parameters
                                     .FirstOrDefaultAsync(p => p.Id == dataArray[i]);
-                    tempParameter.Selected = dataArray[i + 1] == 1 ? true : false;
+                    tempParameter.Selected = dataArray[i + 1] == 1;
                     parameters.Add(tempParameter);
                 }
 
@@ -99,23 +99,21 @@ namespace TwitterHelper.Web.Controllers
         {
             string baseUrl = "https://localhost:44324/";
 
-            using (var client = new HttpClient())
+            using var client = new HttpClient();
+
+            client.BaseAddress = new Uri(baseUrl);
+            client.DefaultRequestHeaders.Clear();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            HttpResponseMessage Res = await client.GetAsync("api/User/43932737");
+
+            if (Res.IsSuccessStatusCode)
             {
-                client.BaseAddress = new Uri(baseUrl);
-
-                client.DefaultRequestHeaders.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-                HttpResponseMessage Res = await client.GetAsync("api/User/43932737");
-
-                if (Res.IsSuccessStatusCode)
-                {
-                    var jsonRes = Res.Content.ReadAsStringAsync().Result;
-                    return View();
-                }
-
-                return NotFound();
+                var jsonRes = Res.Content.ReadAsStringAsync().Result;
+                return View();
             }
+
+            return NotFound();
         }
     }
 }

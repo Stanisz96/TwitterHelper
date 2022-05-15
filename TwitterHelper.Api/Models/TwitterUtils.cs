@@ -57,7 +57,7 @@ namespace TwitterHelper.Api.Models
             }
             if (oauth == "oauth2")
             {
-                setBearerToken();
+                SetBearerToken();
                 this.Client.AddDefaultHeader(
                     name: "Authorization",
                     value: string.Format("Bearer {0}", this.TwitterConf.BearerToken));
@@ -108,7 +108,7 @@ namespace TwitterHelper.Api.Models
             this.Request.Parameters.RemoveParameter(parameterName);
         }
 
-        private void setBearerToken()
+        private void SetBearerToken()
         {
             string strBearerRequest = HttpUtility.UrlEncode(this.TwitterConf.ConsumerKey) +
                                         ":" + HttpUtility.UrlEncode(this.TwitterConf.ConsumerSecret);
@@ -143,12 +143,10 @@ namespace TwitterHelper.Api.Models
 
         public string GetLine(string fileName, int line)
         {
-            using (var sr = new StreamReader(fileName))
-            {
-                for (int i = 1; i < line; i++)
-                    sr.ReadLine();
-                return sr.ReadLine();
-            }
+            using var sr = new StreamReader(fileName);
+            for (int i = 1; i < line; i++)
+                sr.ReadLine();
+            return sr.ReadLine();
         }
     }
 }

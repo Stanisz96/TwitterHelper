@@ -18,7 +18,7 @@ namespace TwitterHelper.Web.Tools
         {
             try
             {
-                ProcessStartInfo startInfo = new ProcessStartInfo
+                ProcessStartInfo startInfo = new()
                 {
                     Arguments = folderPath,
                     FileName = fileName

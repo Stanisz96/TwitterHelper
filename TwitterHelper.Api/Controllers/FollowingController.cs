@@ -62,7 +62,7 @@ namespace TwitterHelper.Api.Controllers
             string followingPath = Path.Combine(this.rootPath, $"Data\\following\\{id}");
             DirectoryInfo followingDirectory = Directory.CreateDirectory(followingPath);
 
-            Users users = new Users(jsonResponse);
+            Users users = new (jsonResponse);
             var count = 0;
 
             if (users.AllUsers is null)
@@ -139,7 +139,7 @@ namespace TwitterHelper.Api.Controllers
                     var jsonResponse = JToken.Parse(response.Content).ToString(Formatting.Indented);
 
 
-                    Tweets tweets = new Tweets(jsonResponse);
+                    Tweets tweets = new (jsonResponse);
 
                     if (tweets.TweetsData is null || tweets.AllTweets is null)
                     {
@@ -152,13 +152,13 @@ namespace TwitterHelper.Api.Controllers
 
 
 
-                    count = Int32.Parse(tweets.Meta.result_count);
+                    count = Int32.Parse(tweets.Meta.Result_count);
                     tweetsCount += count;
                     allTweetsCount += tweetsCount;
 
-                    if (tweets.Meta.next_token is not null)
+                    if (tweets.Meta.Next_token is not null)
                     {
-                        this.twitterUtils.AddParameter("pagination_token", tweets.Meta.next_token);
+                        this.twitterUtils.AddParameter("pagination_token", tweets.Meta.Next_token);
                     }
                     else
                     {

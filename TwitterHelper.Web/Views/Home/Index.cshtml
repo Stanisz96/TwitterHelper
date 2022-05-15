@@ -26,7 +26,7 @@
                 </p>
                 <p>Selected parameters:</p>
                 <div id="userParametersPartial" class="m-4">
-                    @await Html.PartialAsync("_selectedParametersPartial", Model, new ViewDataDictionary(ViewData) { { "TwitterObjectId", 1 } })
+                    @await Html.PartialAsync("SelectedParametersPartial", Model, new ViewDataDictionary(ViewData) { { "TwitterObjectId", 1 } })
                 </div>
                 <button type="button"
                         class="btn btn-primary"
@@ -47,7 +47,7 @@
                 </p>
                 <p>Selected parameters:</p>
                 <div id="usersParametersPartial" class="m-4">
-                    @await Html.PartialAsync("_selectedParametersPartial", Model, new ViewDataDictionary(ViewData) { { "TwitterObjectId", 2 } })
+                    @await Html.PartialAsync("SelectedParametersPartial", Model, new ViewDataDictionary(ViewData) { { "TwitterObjectId", 2 } })
                 </div>
                 <button type="button"
                         class="btn btn-primary"
@@ -70,7 +70,7 @@
                 </p>
                 <p>Selected parameters:</p>
                 <div id="tweetParametersPartial" class="m-4">
-                    @await Html.PartialAsync("_selectedParametersPartial", Model, new ViewDataDictionary(ViewData) { { "TwitterObjectId", 3 } })
+                    @await Html.PartialAsync("SelectedParametersPartial", Model, new ViewDataDictionary(ViewData) { { "TwitterObjectId", 3 } })
                 </div>
                 <button type="button"
                         class="btn btn-primary"
@@ -91,7 +91,7 @@
                 </p>
                 <p>Selected parameters:</p>
                 <div id="tweetsParametersPartial" class="m-4">
-                    @await Html.PartialAsync("_selectedParametersPartial", Model, new ViewDataDictionary(ViewData) { { "TwitterObjectId", 4 } })
+                    @await Html.PartialAsync("SelectedParametersPartial", Model, new ViewDataDictionary(ViewData) { { "TwitterObjectId", 4 } })
                 </div>
                 <button type="button"
                         class="btn btn-primary"
@@ -173,7 +173,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                @using (Html.BeginForm("_selectedParametersPartial", "Home", FormMethod.Post, new { id = "tweetParametersForm" }))
+                @using (Html.BeginForm("SelectedParametersPartial", "Home", FormMethod.Post, new { id = "tweetParametersForm" }))
                 {
                     <div>
                         @foreach (Parameter Parameter in Model)
@@ -202,7 +202,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                @using (Html.BeginForm("_selectedParametersPartial", "Home", FormMethod.Post, new { id = "tweetsParametersForm" }))
+                @using (Html.BeginForm("SelectedParametersPartial", "Home", FormMethod.Post, new { id = "tweetsParametersForm" }))
                 {
                     <div>
                         @foreach (Parameter Parameter in Model)
@@ -238,7 +238,7 @@
         $('#userParametersModalClose').on('click', function (el) {
             let data = $("#userParametersForm").serialize();
             $.ajax({
-                url: "@Url.Action("_selectedParametersPartial", "Home")",
+                url: "@Url.Action("SelectedParametersPartial", "Home")",
                 type: "POST",
                 data: { "dataString": getParameterData(data), "twitterObjectId": 1 },
                 success: function (result) {
@@ -250,7 +250,7 @@
         $('#usersParametersModalClose').on('click', function (el) {
             let data = $("#usersParametersForm").serialize();
             $.ajax({
-                url: "@Url.Action("_selectedParametersPartial", "Home")",
+                url: "@Url.Action("SelectedParametersPartial", "Home")",
                 type: "POST",
                 data: { "dataString": getParameterData(data), "twitterObjectId": 2 },
                 success: function (result) {
@@ -262,7 +262,7 @@
         $('#tweetParametersModalClose').on('click', function (el) {
             let data = $("#tweetParametersForm").serialize();
             $.ajax({
-                url: "@Url.Action("_selectedParametersPartial", "Home")",
+                url: "@Url.Action("SelectedParametersPartial", "Home")",
                 type: "POST",
                 data: { "dataString": getParameterData(data), "twitterObjectId": 3 },
                 success: function (result) {
@@ -274,7 +274,7 @@
         $('#tweetsParametersModalClose').on('click', function (el) {
             let data = $("#tweetsParametersForm").serialize();
             $.ajax({
-                url: "@Url.Action("_selectedParametersPartial", "Home")",
+                url: "@Url.Action("SelectedParametersPartial", "Home")",
                 type: "POST",
                 data: { "dataString": getParameterData(data), "twitterObjectId": 4 },
                 success: function (result) {
