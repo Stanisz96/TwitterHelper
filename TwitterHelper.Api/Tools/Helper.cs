@@ -25,6 +25,7 @@ namespace TwitterHelper.Api.Tools
         {
             var countTweets = 0;
 
+
             foreach (Tweet tweet in tweets.AllTweets)
             {
                 string jsonData = JsonConvert.SerializeObject(tweet);
@@ -41,8 +42,7 @@ namespace TwitterHelper.Api.Tools
                     tweetRefType = tweetRef[0]["type"].ToString();
                 }
 
-                string tweetTypePath = Path.Combine(userDirPath, $"{tweetRefType}");
-
+                string tweetTypePath = Path.Combine(userDirPath, $"tweets\\{tweetRefType}");
                 string dataPath = Path.Combine(tweetTypePath, $"{tweets.TweetsData.ElementAt(countTweets)["id"]}.json");
 
                 File.WriteAllText(dataPath, jsonData);
@@ -112,6 +112,14 @@ namespace TwitterHelper.Api.Tools
             }
 
             return isUserIdDuplicate;
+        }
+
+        public DateTime ConvertStringToDateTime(string dateTimeString)
+        {
+            DateTime dateTime;
+            if (DateTime.TryParse(dateTimeString, out dateTime))
+                return dateTime;
+            return DateTime.MinValue;
         }
     }
 }

@@ -144,13 +144,9 @@ namespace TwitterHelper.Api.Controllers
                     allTweetsCount += tweetsCount;
 
                     if (tweets.Meta.Next_token is not null)
-                    {
                         this.twitterUtils.AddParameter("pagination_token", tweets.Meta.Next_token);
-                    }
                     else
-                    {
                         count = 0;
-                    }
 
                     this.helper.SaveTweets(tweets, userDirPath);
 

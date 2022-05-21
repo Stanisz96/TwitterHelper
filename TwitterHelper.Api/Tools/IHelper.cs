@@ -14,8 +14,8 @@ namespace TwitterHelper.Api.Tools
         public void WaitCalculatedTime(double limitReqPerMin, DateTime dateTimeReference);
         public Task<List<string>> GetContextParameterValues(int twitterObjectId, TwitterContext twitterContext);
         public void SaveUserData(string rootPath, string id, string jsonResponse, string userType);
-        public bool IsUserIdDuplicate(string id);
-
+        public bool IsUserIdDuplicate(string id, string rootPath, string userType);
+        public DateTime ConvertStringToDateTime(string dateTimeString);
 
     }
 }

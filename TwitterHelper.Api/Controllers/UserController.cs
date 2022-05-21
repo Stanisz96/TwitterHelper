@@ -72,9 +72,7 @@ namespace TwitterHelper.Api.Controllers
             await context.SaveChangesAsync();
 
             if (!jsonResponse.Any())
-            {
                 return new BadRequestResult();
-            }
 
             return new JsonResult(id);
         }
@@ -100,7 +98,7 @@ namespace TwitterHelper.Api.Controllers
             int count = 100;
             DateTimeReference refTime;
 
-            while (!(tweetsCount >= 3000 || count == 0))
+            while (!(tweetsCount >= 3500 || count == 0))
             {
                 refTime = await context.DateTimeReferences.FirstAsync();
                 this.helper.WaitCalculatedTime(100, refTime.TimelinesTime);
