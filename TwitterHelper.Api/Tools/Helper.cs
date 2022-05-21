@@ -69,7 +69,7 @@ namespace TwitterHelper.Api.Tools
             return parametersValue;
         }
 
-        public void SaveUserData(string userPath, string id, string jsonResponse)
+        public void SaveUserData(string userPath, string id, string jsonResponse, string userType)
         {
             DirectoryInfo userDirectory = Directory.CreateDirectory(userPath);
             userDirectory.CreateSubdirectory($"tweets\\tweeted");
@@ -79,6 +79,22 @@ namespace TwitterHelper.Api.Tools
 
             string dataPath = Path.Combine(userPath, "userData.json");
             File.WriteAllText(dataPath, jsonResponse);
+
+            string metaPath = Path.Combine(userPath, "metaData.json");
+            MetaData meta = new();
+            meta.UserType = userType;
+            string jsonMetaData = JsonConvert.SerializeObject(meta);
+            File.WriteAllText(metaPath, jsonMetaData);
+
+        }
+
+        public bool IsUserIdDuplicate(string id, string rootPath)
+        {
+            var usersListPath = Path.Combine(rootPath, $"Data\\usersList.dat");
+            var usersListFile = File.ReadAllLines(usersListPath);
+            var usersList = new List<string>(usersListFile);
+
+            return usersList.Contains(id);
         }
     }
 }

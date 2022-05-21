@@ -41,6 +41,9 @@ namespace TwitterHelper.Api.Controllers
         [HttpGet("~/api/[controller]/{id}")]
         public async Task<IActionResult> Get(string id)
         {
+            if (this.helper.IsUserIdDuplicate(id))
+                return new JsonResult(null);
+
             //string userId = "1352246343939592192";
             this.twitterUtils.Configurate("oauth1", $"/users/{id}", Method.Get);
 
@@ -61,7 +64,7 @@ namespace TwitterHelper.Api.Controllers
                 return new JsonResult(null);
 
             string userPath = Path.Combine(this.rootPath, $"Data\\users\\{id}");
-            this.helper.SaveUserData(userPath, id, jsonResponse);
+            this.helper.SaveUserData(userPath, id, jsonResponse, "A");
 
             refTime.UsersLookupTime = DateTime.Now;
 

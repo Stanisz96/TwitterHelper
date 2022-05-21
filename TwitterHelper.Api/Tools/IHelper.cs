@@ -13,7 +13,8 @@ namespace TwitterHelper.Api.Tools
         public void SaveTweets(Tweets tweets, string userDirPath);
         public void WaitCalculatedTime(double limitReqPerMin, DateTime dateTimeReference);
         public Task<List<string>> GetContextParameterValues(int twitterObjectId, TwitterContext twitterContext);
-        public void SaveUserData(string rootPath, string id, string jsonResponse);
+        public void SaveUserData(string rootPath, string id, string jsonResponse, string userType);
+        public bool IsUserIdDuplicate(string id);
 
 
     }
