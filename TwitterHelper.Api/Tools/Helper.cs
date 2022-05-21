@@ -68,5 +68,17 @@ namespace TwitterHelper.Api.Tools
 
             return parametersValue;
         }
+
+        public void SaveUserData(string userPath, string id, string jsonResponse)
+        {
+            DirectoryInfo userDirectory = Directory.CreateDirectory(userPath);
+            userDirectory.CreateSubdirectory($"tweets\\tweeted");
+            userDirectory.CreateSubdirectory($"tweets\\retweeted");
+            userDirectory.CreateSubdirectory($"tweets\\replied_to");
+            userDirectory.CreateSubdirectory($"tweets\\quoted");
+
+            string dataPath = Path.Combine(userPath, "userData.json");
+            File.WriteAllText(dataPath, jsonResponse);
+        }
     }
 }

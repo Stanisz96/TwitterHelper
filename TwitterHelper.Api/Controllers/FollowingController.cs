@@ -45,7 +45,6 @@ namespace TwitterHelper.Api.Controllers
 
             List<string> parametersValue = await this.helper.GetContextParameterValues(2, this.context);
 
-
             if (parametersValue.Count != 0)
                 this.twitterUtils.AddParameters("user.fields", parametersValue);
 
@@ -57,8 +56,7 @@ namespace TwitterHelper.Api.Controllers
             RestResponse response = await this.twitterUtils.Client.ExecuteAsync(this.twitterUtils.Request);
             var jsonResponse = JToken.Parse(response.Content).ToString(Formatting.Indented);
 
-            string followingPath = Path.Combine(this.rootPath, $"Data\\following\\{id}");
-            DirectoryInfo followingDirectory = Directory.CreateDirectory(followingPath);
+            string usersPath = Path.Combine(this.rootPath, $"Data\\users");
 
             Users users = new (jsonResponse);
             var count = 0;
@@ -72,17 +70,11 @@ namespace TwitterHelper.Api.Controllers
 
                 if (!isProtected)
                 {
-                    string userPath = Path.Combine(followingPath, $"{users.UsersData.ElementAt(count)["id"]}");
-                    DirectoryInfo userDirectory = Directory.CreateDirectory(userPath);
-                    userDirectory.CreateSubdirectory("tweeted");
-                    userDirectory.CreateSubdirectory("retweeted");
-                    userDirectory.CreateSubdirectory("replied_to");
-                    userDirectory.CreateSubdirectory("quoted");
-
+                    string userId = users.UsersData.ElementAt(count)["id"].ToString();
+                    string userPath = Path.Combine(usersPath, userId);
                     string jsonData = users.UsersData.ElementAt(count).ToString(Formatting.Indented);
 
-                    string dataPath = Path.Combine(userPath, "data.json");
-                    File.WriteAllText(dataPath, jsonData);
+                    this.helper.SaveUserData(userPath, userId, jsonData);
 
                     count += 1;
                 }

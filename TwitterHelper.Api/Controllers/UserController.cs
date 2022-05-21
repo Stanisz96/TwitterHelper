@@ -61,17 +61,7 @@ namespace TwitterHelper.Api.Controllers
                 return new JsonResult(null);
 
             string userPath = Path.Combine(this.rootPath, $"Data\\users\\{id}");
-            DirectoryInfo userDirectory = Directory.CreateDirectory(userPath);
-            userDirectory.CreateSubdirectory("tweeted");
-            userDirectory.CreateSubdirectory("retweeted");
-            userDirectory.CreateSubdirectory("replied_to");
-            userDirectory.CreateSubdirectory("quoted");
-
-            string followingPath = Path.Combine(this.rootPath, $"Data\\following\\{id}");
-            DirectoryInfo followingDirectory = Directory.CreateDirectory(followingPath);
-
-            string dataPath = Path.Combine(userPath, "data.json");
-            File.WriteAllText(dataPath, jsonResponse);
+            this.helper.SaveUserData(userPath, id, jsonResponse);
 
             refTime.UsersLookupTime = DateTime.Now;
 
