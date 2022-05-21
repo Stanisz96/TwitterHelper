@@ -1,9 +1,13 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+using TwitterHelper.Api.Data;
 using TwitterHelper.Api.Models;
 
 namespace TwitterHelper.Api.Tools
@@ -54,6 +58,15 @@ namespace TwitterHelper.Api.Tools
             double waitMSeconds = diffMSeconds < 0 ? 0 : diffMSeconds;
             if (waitMSeconds > 0)
                 System.Threading.Thread.Sleep((int)waitMSeconds);
+        }
+
+        public async Task<List<string>> GetContextParameterValues(int twitterObjectId, TwitterContext twitterContext)
+        {
+            List<string> parametersValue = await twitterContext.Parameters
+                        .Where(p => p.Selected == true && p.TwitterObjectId == twitterObjectId)
+                        .Select(p => p.Value).ToListAsync();
+
+            return parametersValue;
         }
     }
 }

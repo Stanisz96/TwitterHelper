@@ -43,9 +43,7 @@ namespace TwitterHelper.Api.Controllers
             //string userId = "1352246343939592192";
             this.twitterUtils.Configurate("oauth1", $"/users/{id}/following", Method.Get);
 
-            List<string> parametersValue = await context.Parameters
-                                    .Where(p => p.Selected == true && p.TwitterObjectId == 2)
-                                    .Select(p => p.Value).ToListAsync();
+            List<string> parametersValue = await this.helper.GetContextParameterValues(2, this.context);
 
 
             if (parametersValue.Count != 0)
@@ -108,9 +106,7 @@ namespace TwitterHelper.Api.Controllers
         {
             string followingUsersDirPath = Path.Combine(this.rootPath, $"Data\\following\\{id}");
 
-            List<string> parametersValue = await context.Parameters
-                                .Where(p => p.Selected == true && p.TwitterObjectId == 4)
-                                .Select(p => p.Value).ToListAsync();
+            List<string> parametersValue = await this.helper.GetContextParameterValues(4, this.context);
 
             if (parametersValue.Count != 0)
                 this.twitterUtils.AddParameters("tweet.fields", parametersValue);

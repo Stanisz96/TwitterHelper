@@ -44,9 +44,7 @@ namespace TwitterHelper.Api.Controllers
             //string userId = "1352246343939592192";
             this.twitterUtils.Configurate("oauth1", $"/users/{id}", Method.Get);
 
-            List<string> parametersValue = await context.Parameters
-                                    .Where(p => p.Selected == true && p.TwitterObjectId == 1)
-                                    .Select(p => p.Value).ToListAsync();
+            List<string> parametersValue = await this.helper.GetContextParameterValues(1, this.context);
 
             if (parametersValue.Count != 0)
                 this.twitterUtils.AddParameters("user.fields", parametersValue);
@@ -93,9 +91,7 @@ namespace TwitterHelper.Api.Controllers
         {
             this.twitterUtils.Configurate("oauth1", $"/users/{id}/tweets", Method.Get);
 
-            List<string> parametersValue = await context.Parameters
-                        .Where(p => p.Selected == true && p.TwitterObjectId == 3)
-                        .Select(p => p.Value).ToListAsync();
+            List<string> parametersValue = await this.helper.GetContextParameterValues(3, this.context);
 
             if (parametersValue.Count != 0)
                 this.twitterUtils.AddParameters("tweet.fields", parametersValue);
@@ -161,9 +157,7 @@ namespace TwitterHelper.Api.Controllers
 
             this.twitterUtils.Configurate("oauth1", $"/tweets/search/recent", Method.Get);
 
-            List<string> parametersTweetsValue = await context.Parameters
-                                    .Where(p => p.Selected == true && p.TwitterObjectId == 3)
-                                    .Select(p => p.Value).ToListAsync();
+            List<string> parametersTweetsValue = await this.helper.GetContextParameterValues(3, this.context);
 
             int randomHour = new Random().Next(0, 23);
             DateTime startTime = new(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day - 1, randomHour, 0, 0);
