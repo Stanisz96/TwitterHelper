@@ -88,7 +88,7 @@ namespace TwitterHelper.Api.Tools
 
         }
 
-        public bool IsUserIdDuplicate(string id, string rootPath)
+        public bool IsUserIdDuplicate(string id, string rootPath, string userType)
         {
             var usersListPath = Path.Combine(rootPath, $"Data\\usersList.dat");
             bool isUserIdDuplicate = false;
@@ -96,17 +96,18 @@ namespace TwitterHelper.Api.Tools
             if (!File.Exists(usersListPath))
             {
                 using StreamWriter sw = File.CreateText(usersListPath);
-                sw.WriteLine(id);
+                sw.WriteLine(string.Concat(userType,id));
             }
             else
             {
                 var usersListFile = File.ReadAllLines(usersListPath);
                 var usersList = new List<string>(usersListFile);
-                isUserIdDuplicate = usersList.Contains(id);
+                isUserIdDuplicate = usersList.Contains(string.Concat("A", id)) ||
+                    usersList.Contains(string.Concat("B", id));
                 if (!isUserIdDuplicate)
                 {
                     using StreamWriter sw = File.AppendText(usersListPath);
-                    sw.WriteLine(id);
+                    sw.WriteLine(string.Concat(userType, id));
                 }
             }
 
