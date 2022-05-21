@@ -68,7 +68,7 @@ namespace TwitterHelper.Api.Controllers
             {
                 string userId = users.UsersData.ElementAt(count)["id"].ToString();
                 bool isProtected = user.Protected;
-                bool isUserIdDuplicate = this.helper.IsUserIdDuplicate(userId);
+                bool isUserIdDuplicate = this.helper.IsUserIdDuplicate(userId, rootPath, "B");
 
                 if (!isProtected && !isUserIdDuplicate)
                 {
@@ -76,6 +76,7 @@ namespace TwitterHelper.Api.Controllers
                     string jsonData = users.UsersData.ElementAt(count).ToString(Formatting.Indented);
 
                     this.helper.SaveUserData(userPath, userId, jsonData, "B");
+                    this.helper.SaveUserId(userId, rootPath, "B");
 
                     count += 1;
                 }

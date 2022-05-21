@@ -65,6 +65,7 @@ namespace TwitterHelper.Api.Controllers
 
             string userPath = Path.Combine(this.rootPath, $"Data\\users\\{id}");
             this.helper.SaveUserData(userPath, id, jsonResponse, "A");
+            this.helper.SaveUserId(id, rootPath, "A");
 
             refTime.UsersLookupTime = DateTime.Now;
 
@@ -174,29 +175,32 @@ namespace TwitterHelper.Api.Controllers
             int Result_count = Int32.Parse(tweets.Meta.Result_count);
             int randomTweet = new Random().Next(1, Result_count);
             var userIds = tweets.AllTweets.Select(tweet => tweet.Author_id).ToList();
-
+            userIds = userIds.Distinct().ToList();
             int countEnglishTweets = 0;
             int countAllTweets = 0;
             foreach (string userId in userIds)
             {
-                this.twitterUtils.RemoveParameters();
-                this.twitterUtils.Configurate("oauth1", $"/users/{userId}/tweets", Method.Get);
-                this.twitterUtils.AddParameter("max_results", "100");
-                if (parametersTweetsValue.Count != 0)
-                    this.twitterUtils.AddParameters("tweet.fields", parametersTweetsValue);
-
-                this.helper.WaitCalculatedTime(100, refTime.TimelinesTime);
-                response = await this.twitterUtils.Client.ExecuteAsync(this.twitterUtils.Request);
-                jsonResponse = JToken.Parse(response.Content).ToString(Formatting.Indented);
-                tweets = new(jsonResponse);
-                countEnglishTweets = tweets.AllTweets.Count(t => t.Lang == "en");
-                countAllTweets = tweets.AllTweets.Count();
-
-                refTime.TimelinesTime = DateTime.Now;
-
-                if (countEnglishTweets / countAllTweets > 0.5)
+                if (!this.helper.IsUserIdDuplicate(userId, rootPath, "A"))
                 {
-                    userIdList.Add(userId);
+                    this.twitterUtils.RemoveParameters();
+                    this.twitterUtils.Configurate("oauth1", $"/users/{userId}/tweets", Method.Get);
+                    this.twitterUtils.AddParameter("max_results", "100");
+                    if (parametersTweetsValue.Count != 0)
+                        this.twitterUtils.AddParameters("tweet.fields", parametersTweetsValue);
+
+                    this.helper.WaitCalculatedTime(100, refTime.TimelinesTime);
+                    response = await this.twitterUtils.Client.ExecuteAsync(this.twitterUtils.Request);
+                    jsonResponse = JToken.Parse(response.Content).ToString(Formatting.Indented);
+                    tweets = new(jsonResponse);
+                    countEnglishTweets = tweets.AllTweets.Count(t => t.Lang == "en");
+                    countAllTweets = tweets.AllTweets.Count();
+
+                    refTime.TimelinesTime = DateTime.Now;
+
+                    if (countEnglishTweets / countAllTweets > 0.5)
+                    {
+                        userIdList.Add(userId);
+                    }
                 }
             }
 

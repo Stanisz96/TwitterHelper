@@ -102,25 +102,31 @@ namespace TwitterHelper.Api.Tools
             var usersListPath = Path.Combine(rootPath, $"Data\\usersList.dat");
             bool isUserIdDuplicate = false;
 
-            if (!File.Exists(usersListPath))
-            {
-                using StreamWriter sw = File.CreateText(usersListPath);
-                sw.WriteLine(string.Concat(userType,id));
-            }
-            else
+            if (File.Exists(usersListPath))
             {
                 var usersListFile = File.ReadAllLines(usersListPath);
                 var usersList = new List<string>(usersListFile);
                 isUserIdDuplicate = usersList.Contains(string.Concat("A", id)) ||
                     usersList.Contains(string.Concat("B", id));
-                if (!isUserIdDuplicate)
-                {
-                    using StreamWriter sw = File.AppendText(usersListPath);
-                    sw.WriteLine(string.Concat(userType, id));
-                }
             }
 
             return isUserIdDuplicate;
+        }
+    
+        public void SaveUserId(string id, string rootPath, string userType)
+        {
+            var usersListPath = Path.Combine(rootPath, $"Data\\usersList.dat");
+
+            if (!File.Exists(usersListPath))
+            {
+                using StreamWriter sw = File.CreateText(usersListPath);
+                sw.WriteLine(string.Concat(userType, id));
+            }
+            else
+            {
+                using StreamWriter sw = File.AppendText(usersListPath);
+                sw.WriteLine(string.Concat(userType, id));
+            }
         }
 
         public DateTime ConvertStringToDateTime(string dateTimeString)
