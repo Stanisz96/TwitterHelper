@@ -66,10 +66,11 @@ namespace TwitterHelper.Api.Controllers
 
             foreach (User user in users.AllUsers)
             {
-                bool isProtected = user.Protected;
                 string userId = users.UsersData.ElementAt(count)["id"].ToString();
+                bool isProtected = user.Protected;
+                bool isUserIdDuplicate = this.helper.IsUserIdDuplicate(userId);
 
-                if (!isProtected && !this.helper.IsUserIdDuplicate(userId))
+                if (!isProtected && !isUserIdDuplicate)
                 {
                     string userPath = Path.Combine(usersPath, userId);
                     string jsonData = users.UsersData.ElementAt(count).ToString(Formatting.Indented);
@@ -86,9 +87,7 @@ namespace TwitterHelper.Api.Controllers
             await context.SaveChangesAsync();
 
             if (!jsonResponse.Any())
-            {
                 return new BadRequestResult();
-            }
 
             return new JsonResult(id);
         }

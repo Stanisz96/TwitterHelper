@@ -91,10 +91,26 @@ namespace TwitterHelper.Api.Tools
         public bool IsUserIdDuplicate(string id, string rootPath)
         {
             var usersListPath = Path.Combine(rootPath, $"Data\\usersList.dat");
-            var usersListFile = File.ReadAllLines(usersListPath);
-            var usersList = new List<string>(usersListFile);
+            bool isUserIdDuplicate = false;
 
-            return usersList.Contains(id);
+            if (!File.Exists(usersListPath))
+            {
+                using StreamWriter sw = File.CreateText(usersListPath);
+                sw.WriteLine(id);
+            }
+            else
+            {
+                var usersListFile = File.ReadAllLines(usersListPath);
+                var usersList = new List<string>(usersListFile);
+                isUserIdDuplicate = usersList.Contains(id);
+                if (!isUserIdDuplicate)
+                {
+                    using StreamWriter sw = File.AppendText(usersListPath);
+                    sw.WriteLine(id);
+                }
+            }
+
+            return isUserIdDuplicate;
         }
     }
 }
