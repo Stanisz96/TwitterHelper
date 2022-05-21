@@ -25,6 +25,8 @@ namespace TwitterHelper.Api.Tools
         {
             var countTweets = 0;
 
+            MetaData metaData = GetMetaData(userDirPath);
+
 
             foreach (Tweet tweet in tweets.AllTweets)
             {
@@ -34,12 +36,16 @@ namespace TwitterHelper.Api.Tools
                 string tweetRefType = "";
 
                 if (tweetRef is null)
-                {
                     tweetRefType = "tweeted";
-                }
                 else
-                {
                     tweetRefType = tweetRef[0]["type"].ToString();
+
+                var convertedTweetTime = ConvertStringToDateTime(tweet.Created_at);
+                
+                if (tweetRefType == "retweeted")
+                {
+                    if (DateTime.Compare(convertedTweetTime,metaData.OldestRetweetData) < 0)
+                        metaData.OldestRetweetData = convertedTweetTime;
                 }
 
                 string tweetTypePath = Path.Combine(userDirPath, $"tweets\\{tweetRefType}");
@@ -49,6 +55,9 @@ namespace TwitterHelper.Api.Tools
 
                 countTweets += 1;
             }
+
+            UpdateMetaData(userDirPath, metaData);
+
         }
 
         public void WaitCalculatedTime(double limitReqPerMin, DateTime dateTimeReference)
@@ -120,6 +129,22 @@ namespace TwitterHelper.Api.Tools
             if (DateTime.TryParse(dateTimeString, out dateTime))
                 return dateTime;
             return DateTime.MinValue;
+        }
+
+        public MetaData GetMetaData(string userDirPath)
+        {
+            string metaDataPath = Path.Combine(userDirPath, "metaData.json");
+            string jsonFile = File.ReadAllText(metaDataPath);
+            MetaData metaData = JsonConvert.DeserializeObject<MetaData>(jsonFile);
+
+            return metaData;
+        }
+
+        public void UpdateMetaData(string userDirPath, MetaData metadata)
+        {
+            string jsonMetaData = JsonConvert.SerializeObject(metadata);
+            string metaDataPath = Path.Combine(userDirPath, "metaData.json");
+            File.WriteAllText(metaDataPath, jsonMetaData);
         }
     }
 }

@@ -16,6 +16,7 @@ namespace TwitterHelper.Api.Tools
         public void SaveUserData(string rootPath, string id, string jsonResponse, string userType);
         public bool IsUserIdDuplicate(string id, string rootPath, string userType);
         public DateTime ConvertStringToDateTime(string dateTimeString);
+        public void UpdateMetaData(string userDirPath, MetaData metadata);
 
     }
 }

@@ -41,7 +41,7 @@ namespace TwitterHelper.Api.Controllers
         [HttpGet("~/api/[controller]/{id}")]
         public async Task<IActionResult> Get(string id)
         {
-            if (this.helper.IsUserIdDuplicate(id))
+            if (this.helper.IsUserIdDuplicate(id, rootPath, "A"))
                 return new JsonResult(null);
 
             //string userId = "1352246343939592192";
@@ -91,7 +91,7 @@ namespace TwitterHelper.Api.Controllers
             this.twitterUtils.AddParameter("expansions", "referenced_tweets.id");
 
 
-            string subPath = $"Data\\users\\{id}";
+            string subPath = $"data\\users\\{id}";
             string tweetsPath = Path.Combine(this.rootPath, subPath);
 
             int tweetsCount = 0;
