@@ -29,7 +29,13 @@ namespace TwitterHelper.Api.Tools
 
             foreach (Tweet tweet in tweets.AllTweets)
             {
-                string jsonData = JsonConvert.SerializeObject(tweet);
+                if (tweet.Referenced_tweets is null)
+                {
+                    tweet.Referenced_tweets = new List<ReferencedTweet>
+                    {
+                        new ReferencedTweet() { Id = tweet.Id, Type = "tweeted" }
+                    };
+                }
                 var convertedTweetTime = ConvertStringToDateTime(tweet.Created_at);
                 metaData = this.UpdateMetaDataOrStopSavingTweets(metaData,
                                                                  tweet,
@@ -42,6 +48,7 @@ namespace TwitterHelper.Api.Tools
                 string tweetTypePath = Path.Combine(Globals.USERS_PATH,$"{userId}\\tweets\\{tweetRefType}");
                 string tweetDataPath = Path.Combine(tweetTypePath, $"{tweet.Id}.json");
 
+                string jsonData = JsonConvert.SerializeObject(tweet);
                 File.WriteAllText(tweetDataPath, jsonData);
 
                 countTweets++;
@@ -125,10 +132,10 @@ namespace TwitterHelper.Api.Tools
 
         public DateTime ConvertStringToDateTime(string dateTimeString)
         {
-            if (DateTime.TryParse(dateTimeString, out DateTime dateTime))
-                return dateTime;
-
-            return DateTime.MinValue;
+            DateTime dateTime = DateTime.ParseExact(dateTimeString,
+                                         "MM'/'dd'/'yyyy HH:mm:ss",
+                                         null);
+            return dateTime;
         }
 
         public MetaData GetMetaData(string userId)

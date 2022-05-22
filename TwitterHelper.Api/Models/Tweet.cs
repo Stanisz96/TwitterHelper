@@ -17,16 +17,5 @@ namespace TwitterHelper.Api.Models
         public TweetPublicMetrics Public_metrics { get; set; }
         public List<ReferencedTweet> Referenced_tweets { get; set; }
 
-        public Tweet()
-        {
-            if (Referenced_tweets is null)
-            {
-                Referenced_tweets = new List<ReferencedTweet>
-                {
-                    new ReferencedTweet() { Id = this.Id, Type = "tweeted" }
-                };
-            }
-        }
-
     }
 }
