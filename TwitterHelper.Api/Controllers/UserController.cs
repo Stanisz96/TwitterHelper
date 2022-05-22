@@ -22,7 +22,6 @@ namespace TwitterHelper.Api.Controllers
         private readonly ITwitterUtils twitterUtils;
         private readonly IWebHostEnvironment hostingEnv;
         private readonly TwitterContext context;
-        private readonly string rootPath;
         private readonly IHelper helper;
 
         public UserController(
@@ -34,14 +33,13 @@ namespace TwitterHelper.Api.Controllers
             this.twitterUtils = twitterUtils;
             this.hostingEnv = hostingEnv;
             this.context = context;
-            this.rootPath = "C:\\Magisterka";
             this.helper = helper;
         }
 
         [HttpGet("~/api/[controller]/{id}")]
         public async Task<IActionResult> Get(string id)
         {
-            if (this.helper.IsUserIdDuplicate(id, rootPath, "A"))
+            if (this.helper.IsUserIdDuplicate(id, "A"))
                 return new JsonResult(null);
 
             //string userId = "1352246343939592192";
@@ -63,9 +61,8 @@ namespace TwitterHelper.Api.Controllers
             if (isProtected)
                 return new JsonResult(null);
 
-            string userPath = Path.Combine(this.rootPath, $"Data\\users\\{id}");
-            this.helper.SaveUserData(userPath, id, jsonResponse, "A");
-            this.helper.SaveUserId(id, rootPath, "A");
+            this.helper.SaveUserData(id, jsonResponse, "A");
+            this.helper.SaveUserId(id, "A");
 
             refTime.UsersLookupTime = DateTime.Now;
 
@@ -92,14 +89,12 @@ namespace TwitterHelper.Api.Controllers
             this.twitterUtils.AddParameter("expansions", "referenced_tweets.id");
 
 
-            string subPath = $"data\\users\\{id}";
-            string tweetsPath = Path.Combine(this.rootPath, subPath);
 
             int tweetsCount = 0;
             int count = 100;
             DateTimeReference refTime;
 
-            while (!(tweetsCount >= 3500 || count == 0))
+            while (!(tweetsCount >= 300 || count == 0))
             {
                 refTime = await context.DateTimeReferences.FirstAsync();
                 this.helper.WaitCalculatedTime(100, refTime.TimelinesTime);
@@ -122,20 +117,19 @@ namespace TwitterHelper.Api.Controllers
                 tweetsCount += count;
 
                 if (tweets.Meta.Next_token is not null)
-                {
                     this.twitterUtils.AddParameter("pagination_token", tweets.Meta.Next_token);
-                }
                 else
-                {
                     count = 0;
-                }
 
-                this.helper.SaveTweets(tweets, tweetsPath);
+                this.helper.SaveTweets(tweets, id, out bool shouldContinue);
 
                 refTime.TimelinesTime = DateTime.Now;
 
                 context.Update(refTime);
                 await context.SaveChangesAsync();
+
+                if (!shouldContinue)
+                    break;
             }
 
             return tweetsCount.ToString();
@@ -158,7 +152,7 @@ namespace TwitterHelper.Api.Controllers
             this.twitterUtils.AddQuery("lang:en the -the");
             this.twitterUtils.AddParameter("start_time", this.helper.ToTwitterTimeStamp(startTime));
             this.twitterUtils.AddParameter("end_time", this.helper.ToTwitterTimeStamp(endTime));
-            this.twitterUtils.AddParameter("max_results", "100");
+            this.twitterUtils.AddParameter("max_results", "10");
             if (parametersTweetsValue.Count != 0)
                 this.twitterUtils.AddParameters("tweet.fields", parametersTweetsValue);
 
@@ -178,13 +172,15 @@ namespace TwitterHelper.Api.Controllers
             userIds = userIds.Distinct().ToList();
             int countEnglishTweets = 0;
             int countAllTweets = 0;
+
             foreach (string userId in userIds)
             {
-                if (!this.helper.IsUserIdDuplicate(userId, rootPath, "A"))
+                if (!this.helper.IsUserIdDuplicate(userId, "A"))
                 {
                     this.twitterUtils.RemoveParameters();
                     this.twitterUtils.Configurate("oauth1", $"/users/{userId}/tweets", Method.Get);
-                    this.twitterUtils.AddParameter("max_results", "100");
+                    this.twitterUtils.AddParameter("max_results", "10");
+
                     if (parametersTweetsValue.Count != 0)
                         this.twitterUtils.AddParameters("tweet.fields", parametersTweetsValue);
 
@@ -198,9 +194,7 @@ namespace TwitterHelper.Api.Controllers
                     refTime.TimelinesTime = DateTime.Now;
 
                     if (countEnglishTweets / countAllTweets > 0.5)
-                    {
                         userIdList.Add(userId);
-                    }
                 }
             }
 

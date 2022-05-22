@@ -34,8 +34,7 @@ namespace TwitterHelper.Web.Controllers
 
         public async Task<IActionResult> Index()
         {
-            IEnumerable<Models.Parameter> Parameters = await context.Parameters.ToListAsync();
-
+            IEnumerable<Parameter> Parameters = await context.Parameters.ToListAsync();
 
             return View(Parameters);
         }

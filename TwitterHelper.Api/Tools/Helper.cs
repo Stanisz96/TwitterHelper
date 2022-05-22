@@ -21,42 +21,33 @@ namespace TwitterHelper.Api.Tools
         }
 
 
-        public void SaveTweets(Tweets tweets, string userDirPath)
+        public void SaveTweets(Tweets tweets, string userId, out bool shouldContinue)
         {
             var countTweets = 0;
-
-            MetaData metaData = GetMetaData(userDirPath);
-
+            shouldContinue = true;
+            MetaData metaData = GetMetaData(userId);
 
             foreach (Tweet tweet in tweets.AllTweets)
             {
                 string jsonData = JsonConvert.SerializeObject(tweet);
-                var tweetRef = tweets.TweetsData.ElementAt(countTweets)["referenced_tweets"];
-
-                string tweetRefType = "";
-
-                if (tweetRef is null)
-                    tweetRefType = "tweeted";
-                else
-                    tweetRefType = tweetRef[0]["type"].ToString();
-
                 var convertedTweetTime = ConvertStringToDateTime(tweet.Created_at);
-                
-                if (tweetRefType == "retweeted")
-                {
-                    if (DateTime.Compare(convertedTweetTime,metaData.OldestRetweetData) < 0)
-                        metaData.OldestRetweetData = convertedTweetTime;
-                }
+                metaData = this.UpdateMetaDataOrStopSavingTweets(metaData,
+                                                                 tweet,
+                                                                 out shouldContinue);
 
-                string tweetTypePath = Path.Combine(userDirPath, $"tweets\\{tweetRefType}");
-                string dataPath = Path.Combine(tweetTypePath, $"{tweets.TweetsData.ElementAt(countTweets)["id"]}.json");
+                if (!shouldContinue)
+                    break;
 
-                File.WriteAllText(dataPath, jsonData);
+                var tweetRefType = tweet.Referenced_tweets.FirstOrDefault().Type;
+                string tweetTypePath = Path.Combine(Globals.USERS_PATH,$"{userId}\\tweets\\{tweetRefType}");
+                string tweetDataPath = Path.Combine(tweetTypePath, $"{tweet.Id}.json");
 
-                countTweets += 1;
+                File.WriteAllText(tweetDataPath, jsonData);
+
+                countTweets++;
             }
 
-            UpdateMetaData(userDirPath, metaData);
+            SaveMetaData(userId, metaData);
 
         }
 
@@ -78,79 +69,124 @@ namespace TwitterHelper.Api.Tools
             return parametersValue;
         }
 
-        public void SaveUserData(string userPath, string id, string jsonResponse, string userType)
+        public void SaveUserData(string userId, string jsonResponse, string userType)
         {
+            string userPath = Path.Combine(Globals.USERS_PATH, $"{userId}");
+            string userDataPath = Path.Combine(userPath, "userData.json");
+            string userMetaPath = Path.Combine(userPath, "metaData.json");
+
             DirectoryInfo userDirectory = Directory.CreateDirectory(userPath);
             userDirectory.CreateSubdirectory($"tweets\\tweeted");
             userDirectory.CreateSubdirectory($"tweets\\retweeted");
             userDirectory.CreateSubdirectory($"tweets\\replied_to");
             userDirectory.CreateSubdirectory($"tweets\\quoted");
 
-            string dataPath = Path.Combine(userPath, "userData.json");
-            File.WriteAllText(dataPath, jsonResponse);
+            File.WriteAllText(userDataPath, jsonResponse);
 
-            string metaPath = Path.Combine(userPath, "metaData.json");
             MetaData meta = new();
             meta.UserType = userType;
             string jsonMetaData = JsonConvert.SerializeObject(meta);
-            File.WriteAllText(metaPath, jsonMetaData);
+
+            File.WriteAllText(userMetaPath, jsonMetaData);
 
         }
 
-        public bool IsUserIdDuplicate(string id, string rootPath, string userType)
+        public bool IsUserIdDuplicate(string userId, string userType)
         {
-            var usersListPath = Path.Combine(rootPath, $"Data\\usersList.dat");
+            var usersListPath = Path.Combine(Globals.DATA_PATH, "usersList.dat");
             bool isUserIdDuplicate = false;
 
             if (File.Exists(usersListPath))
             {
                 var usersListFile = File.ReadAllLines(usersListPath);
                 var usersList = new List<string>(usersListFile);
-                isUserIdDuplicate = usersList.Contains(string.Concat("A", id)) ||
-                    usersList.Contains(string.Concat("B", id));
+                isUserIdDuplicate = usersList.Contains(string.Concat("A", userId)) ||
+                    usersList.Contains(string.Concat("B", userId));
             }
 
             return isUserIdDuplicate;
         }
     
-        public void SaveUserId(string id, string rootPath, string userType)
+        public void SaveUserId(string userId, string userType)
         {
-            var usersListPath = Path.Combine(rootPath, $"Data\\usersList.dat");
+            var usersListPath = Path.Combine(Globals.DATA_PATH, "usersList.dat");
 
             if (!File.Exists(usersListPath))
             {
                 using StreamWriter sw = File.CreateText(usersListPath);
-                sw.WriteLine(string.Concat(userType, id));
+                sw.WriteLine(string.Concat(userType, userId));
             }
             else
             {
                 using StreamWriter sw = File.AppendText(usersListPath);
-                sw.WriteLine(string.Concat(userType, id));
+                sw.WriteLine(string.Concat(userType, userId));
             }
         }
 
         public DateTime ConvertStringToDateTime(string dateTimeString)
         {
-            DateTime dateTime;
-            if (DateTime.TryParse(dateTimeString, out dateTime))
+            if (DateTime.TryParse(dateTimeString, out DateTime dateTime))
                 return dateTime;
+
             return DateTime.MinValue;
         }
 
-        public MetaData GetMetaData(string userDirPath)
+        public MetaData GetMetaData(string userId)
         {
-            string metaDataPath = Path.Combine(userDirPath, "metaData.json");
+            string metaDataPath = Path.Combine(Globals.USERS_PATH, $"{userId}\\metaData.json");
             string jsonFile = File.ReadAllText(metaDataPath);
             MetaData metaData = JsonConvert.DeserializeObject<MetaData>(jsonFile);
 
             return metaData;
         }
 
-        public void UpdateMetaData(string userDirPath, MetaData metadata)
+        public void SaveMetaData(string userId, MetaData metadata)
         {
             string jsonMetaData = JsonConvert.SerializeObject(metadata);
-            string metaDataPath = Path.Combine(userDirPath, "metaData.json");
+            string metaDataPath = Path.Combine(Globals.USERS_PATH, $"{userId}\\metaData.json");
             File.WriteAllText(metaDataPath, jsonMetaData);
+        }
+        public MetaData UpdateMetaDataOrStopSavingTweets(MetaData metaData, Tweet tweet, out bool shouldSaveTweet)
+        {
+            var convertedTweetTime = ConvertStringToDateTime(tweet.Created_at);
+            var tweetRefType = tweet.Referenced_tweets.FirstOrDefault().Type;
+            shouldSaveTweet = true;
+
+            if (tweetRefType == "retweeted" && metaData.UserType == "A")
+            {
+                if (DateTime.Compare(convertedTweetTime, metaData.OldestRetweetData) < 0)
+                    metaData.OldestRetweetData = convertedTweetTime;
+            }
+
+            if (tweetRefType == "tweeted" && metaData.UserType == "B")
+            {
+                shouldSaveTweet = false;
+                foreach (var follower in metaData.Followers)
+                {
+                    MetaData metaDataA = GetMetaData(follower);
+                    if (DateTime.Compare(convertedTweetTime, metaDataA.OldestRetweetData) > 0)
+                    {
+                        shouldSaveTweet = true;
+                        break;
+                    }
+                }
+            }
+
+            return metaData;
+        }
+
+        public void SaveFollowingUserToUserMetaData(string userAId, string userBId)
+        {
+            MetaData metaDataA = GetMetaData(userAId);
+            metaDataA.Following.Add(userBId);
+            SaveMetaData(userAId, metaDataA);
+        }
+
+        public void SaveFollowerUserToUserMetaData(string userAId, string userBId)
+        {
+            MetaData metaDataB = GetMetaData(userBId);
+            metaDataB.Followers.Add(userAId);
+            SaveMetaData(userBId, metaDataB);
         }
     }
 }

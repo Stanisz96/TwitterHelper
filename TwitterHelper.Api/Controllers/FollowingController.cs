@@ -21,7 +21,6 @@ namespace TwitterHelper.Api.Controllers
         private readonly ITwitterUtils twitterUtils;
         private readonly IWebHostEnvironment hostingEnv;
         private readonly TwitterContext context;
-        private readonly string rootPath;
         private readonly IHelper helper;
 
         public FollowingController(
@@ -33,7 +32,6 @@ namespace TwitterHelper.Api.Controllers
             this.twitterUtils = twitterUtils;
             this.hostingEnv = hostingEnv;
             this.context = context;
-            this.rootPath = "C:\\Magisterka";
             this.helper = helper;
         }
 
@@ -48,15 +46,13 @@ namespace TwitterHelper.Api.Controllers
             if (parametersValue.Count != 0)
                 this.twitterUtils.AddParameters("user.fields", parametersValue);
 
-            this.twitterUtils.AddParameter("max_results", "300");
+            this.twitterUtils.AddParameter("max_results", "30");
 
             var refTime = await context.DateTimeReferences.FirstAsync();
             this.helper.WaitCalculatedTime(1, refTime.FollowsTime);
 
             RestResponse response = await this.twitterUtils.Client.ExecuteAsync(this.twitterUtils.Request);
             var jsonResponse = JToken.Parse(response.Content).ToString(Formatting.Indented);
-
-            string usersPath = Path.Combine(this.rootPath, $"Data\\users");
 
             Users users = new (jsonResponse);
             var count = 0;
@@ -66,17 +62,17 @@ namespace TwitterHelper.Api.Controllers
 
             foreach (User user in users.AllUsers)
             {
-                string userId = users.UsersData.ElementAt(count)["id"].ToString();
                 bool isProtected = user.Protected;
-                bool isUserIdDuplicate = this.helper.IsUserIdDuplicate(userId, rootPath, "B");
+                bool isUserIdDuplicate = this.helper.IsUserIdDuplicate(user.Id, "B");
 
                 if (!isProtected && !isUserIdDuplicate)
                 {
-                    string userPath = Path.Combine(usersPath, userId);
-                    string jsonData = users.UsersData.ElementAt(count).ToString(Formatting.Indented);
+                    string jsonData = JsonConvert.SerializeObject(user);
 
-                    this.helper.SaveUserData(userPath, userId, jsonData, "B");
-                    this.helper.SaveUserId(userId, rootPath, "B");
+                    this.helper.SaveUserData(user.Id, jsonData, "B");
+                    this.helper.SaveUserId(user.Id, "B");
+                    this.helper.SaveFollowingUserToUserMetaData(id, user.Id);
+                    this.helper.SaveFollowerUserToUserMetaData(id, user.Id);
 
                     count += 1;
                 }
@@ -96,8 +92,6 @@ namespace TwitterHelper.Api.Controllers
         [HttpGet("~/api/[controller]/{id}/[action]")]
         public async Task<IActionResult> Tweets(string id)
         {
-            string followingUsersDirPath = Path.Combine(this.rootPath, $"Data\\following\\{id}");
-
             List<string> parametersValue = await this.helper.GetContextParameterValues(4, this.context);
 
             if (parametersValue.Count != 0)
@@ -108,17 +102,18 @@ namespace TwitterHelper.Api.Controllers
 
             int allTweetsCount = 0;
 
-            foreach (string userDirPath in Directory.GetDirectories(followingUsersDirPath))
+            MetaData metaData = this.helper.GetMetaData(id);
+
+            foreach (string userId in metaData.Following)
             {
-                string subUserId = userDirPath.Remove(0, followingUsersDirPath.Length + 1);
-                this.twitterUtils.Configurate("oauth1", $"/users/{subUserId}/tweets", Method.Get);
+                this.twitterUtils.Configurate("oauth1", $"/users/{userId}/tweets", Method.Get);
                 this.twitterUtils.RemoveParameter("pagination_token");
 
                 int tweetsCount = 0;
                 int count = 100;
                 DateTimeReference refTime;
 
-                while (!(tweetsCount >= 1000 || count == 0))
+                while (!(tweetsCount >= 150 || count == 0))
                 {
                     refTime = await context.DateTimeReferences.FirstAsync();
                     this.helper.WaitCalculatedTime(100, refTime.TimelinesTime);
@@ -149,12 +144,15 @@ namespace TwitterHelper.Api.Controllers
                     else
                         count = 0;
 
-                    this.helper.SaveTweets(tweets, userDirPath);
+                    this.helper.SaveTweets(tweets, userId, out bool shouldContinue);
 
                     refTime.TimelinesTime = DateTime.Now;
 
                     context.Update(refTime);
                     await context.SaveChangesAsync();
+
+                    if (!shouldContinue)
+                        break;
                 }
             }
 
