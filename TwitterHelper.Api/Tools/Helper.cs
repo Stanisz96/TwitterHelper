@@ -186,18 +186,23 @@ namespace TwitterHelper.Api.Tools
             return metaData;
         }
 
-        public void SaveFollowingUserToUserMetaData(string userAId, string userBId)
+        public void SaveFollowingUserToUserMetaData(string followerId, string followingId)
         {
-            MetaData metaDataA = GetMetaData(userAId);
-            metaDataA.Following.Add(userBId);
-            SaveMetaData(userAId, metaDataA);
+            MetaData metaDataA = GetMetaData(followerId);
+            metaDataA.Following.Add(followingId);
+            SaveMetaData(followerId, metaDataA);
         }
 
-        public void SaveFollowerUserToUserMetaData(string userAId, string userBId)
+        public void SaveFollowerUserToUserMetaData(string followerId, string followingId)
         {
-            MetaData metaDataB = GetMetaData(userBId);
-            metaDataB.Followers.Add(userAId);
-            SaveMetaData(userBId, metaDataB);
+            MetaData metaDataB = GetMetaData(followingId);
+            metaDataB.Followers.Add(followerId);
+            SaveMetaData(followingId, metaDataB);
+        }
+
+        public bool IsUsersOldestTweetOlderThenFollowerOldestRetweet()
+        {
+            return true;
         }
     }
 }

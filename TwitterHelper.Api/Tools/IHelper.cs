@@ -19,8 +19,8 @@ namespace TwitterHelper.Api.Tools
         public void SaveMetaData(string userDirPath, MetaData metadata);
         public void SaveUserId(string userId, string userType);
         public MetaData UpdateMetaDataOrStopSavingTweets(MetaData metaData, Tweet tweet, out bool shouldSaveTweet);
-        public void SaveFollowingUserToUserMetaData(string userAId, string userBId);
-        public void SaveFollowerUserToUserMetaData(string userAId, string userBId);
+        public void SaveFollowingUserToUserMetaData(string followerId, string followingId);
+        public void SaveFollowerUserToUserMetaData(string followerId, string followingId);
         public MetaData GetMetaData(string userId);
 
     }
