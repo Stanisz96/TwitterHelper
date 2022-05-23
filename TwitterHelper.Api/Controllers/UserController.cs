@@ -146,8 +146,10 @@ namespace TwitterHelper.Api.Controllers
             List<string> parametersTweetsValue = await this.helper.GetContextParameterValues(3, this.context);
 
             int randomHour = new Random().Next(0, 23);
-            DateTime startTime = new(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day - 1, randomHour, 0, 0);
-            DateTime endTime = new(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day - 1, randomHour + 1, 0, 0);
+            int randomMin = new Random().Next(0, 49);
+            int randomSec = new Random().Next(0, 59);
+            DateTime startTime = new(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day - 1, randomHour, randomMin, randomSec);
+            DateTime endTime = new(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day - 1, randomHour, randomMin + 10, randomSec);
 
             this.twitterUtils.AddQuery("lang:en the -the");
             this.twitterUtils.AddParameter("start_time", this.helper.ToTwitterTimeStamp(startTime));
