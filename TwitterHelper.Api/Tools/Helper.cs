@@ -169,8 +169,8 @@ namespace TwitterHelper.Api.Tools
             {
                 shouldSaveTweet = false;
 
-                if (DateTime.Compare(convertedTweetTime, metaData.OldestTweetData) < 0)
-                    metaData.OldestTweetData = convertedTweetTime;
+                if (DateTime.Compare(convertedTweetTime, metaData.OldestTweetDate) < 0)
+                    metaData.OldestTweetDate = convertedTweetTime;
 
                 foreach (var follower in metaData.Followers)
                 {
@@ -200,9 +200,14 @@ namespace TwitterHelper.Api.Tools
             SaveMetaData(followingId, metaDataB);
         }
 
-        public bool IsUsersOldestTweetOlderThenFollowerOldestRetweet()
+        public bool IsUsersOldestTweetOlderThenFollowerOldestRetweet(string followerId, string followingId)
         {
-            return true;
+            MetaData metaDataFollower = GetMetaData(followerId);
+            MetaData metaDataFollowing = GetMetaData(followingId);
+            var followerDate = metaDataFollower.OldestRetweetDate;
+            var followingDate = metaDataFollowing.OldestTweetDate;
+
+            return DateTime.Compare(followerDate, followingDate) < 0;
         }
     }
 }
