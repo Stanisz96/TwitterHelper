@@ -13,6 +13,7 @@ namespace TwitterHelper.Api.Models
         public string Text { get; set; }
         public string Created_at { get; set; }
         public string Lang { get; set; }
+        public string Source { get; set; }
         public JObject Entities { get; set; }
         public TweetPublicMetrics Public_metrics { get; set; }
         public List<ReferencedTweet> Referenced_tweets { get; set; }
