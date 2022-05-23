@@ -64,8 +64,14 @@ namespace TwitterHelper.Api.Controllers
             {
                 bool isProtected = user.Protected;
                 bool isUserIdDuplicate = this.helper.IsUserIdDuplicate(user.Id, "B");
+                bool shouldSaveUser = true;
 
-                if (!isProtected && !isUserIdDuplicate)
+                if (isUserIdDuplicate)
+                    shouldSaveUser = this.helper.IsFollowerOldestRetweetOlderThenFollowingOldestTweet(id, user.Id);
+                if (isProtected)
+                    shouldSaveUser = false;
+
+                if (shouldSaveUser)
                 {
                     string jsonData = JsonConvert.SerializeObject(user);
 

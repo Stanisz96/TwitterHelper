@@ -200,7 +200,7 @@ namespace TwitterHelper.Api.Tools
             SaveMetaData(followingId, metaDataB);
         }
 
-        public bool IsUsersOldestTweetOlderThenFollowerOldestRetweet(string followerId, string followingId)
+        public bool IsFollowerOldestRetweetOlderThenFollowingOldestTweet(string followerId, string followingId)
         {
             MetaData metaDataFollower = GetMetaData(followerId);
             MetaData metaDataFollowing = GetMetaData(followingId);
