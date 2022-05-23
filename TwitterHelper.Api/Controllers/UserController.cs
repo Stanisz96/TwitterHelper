@@ -94,7 +94,7 @@ namespace TwitterHelper.Api.Controllers
             int count = 100;
             DateTimeReference refTime;
 
-            while (!(tweetsCount >= 300 || count == 0))
+            while (!(tweetsCount >= 3000 || count == 0))
             {
                 refTime = await context.DateTimeReferences.FirstAsync();
                 this.helper.WaitCalculatedTime(100, refTime.TimelinesTime);
@@ -152,7 +152,7 @@ namespace TwitterHelper.Api.Controllers
             this.twitterUtils.AddQuery("lang:en the -the");
             this.twitterUtils.AddParameter("start_time", this.helper.ToTwitterTimeStamp(startTime));
             this.twitterUtils.AddParameter("end_time", this.helper.ToTwitterTimeStamp(endTime));
-            this.twitterUtils.AddParameter("max_results", "10");
+            this.twitterUtils.AddParameter("max_results", "100");
             if (parametersTweetsValue.Count != 0)
                 this.twitterUtils.AddParameters("tweet.fields", parametersTweetsValue);
 
@@ -179,7 +179,7 @@ namespace TwitterHelper.Api.Controllers
                 {
                     this.twitterUtils.RemoveParameters();
                     this.twitterUtils.Configurate("oauth1", $"/users/{userId}/tweets", Method.Get);
-                    this.twitterUtils.AddParameter("max_results", "10");
+                    this.twitterUtils.AddParameter("max_results", "100");
 
                     if (parametersTweetsValue.Count != 0)
                         this.twitterUtils.AddParameters("tweet.fields", parametersTweetsValue);

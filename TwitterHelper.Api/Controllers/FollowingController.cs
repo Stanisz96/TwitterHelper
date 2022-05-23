@@ -46,7 +46,7 @@ namespace TwitterHelper.Api.Controllers
             if (parametersValue.Count != 0)
                 this.twitterUtils.AddParameters("user.fields", parametersValue);
 
-            this.twitterUtils.AddParameter("max_results", "30");
+            this.twitterUtils.AddParameter("max_results", "300");
 
             var refTime = await context.DateTimeReferences.FirstAsync();
             this.helper.WaitCalculatedTime(1, refTime.FollowsTime);
@@ -119,7 +119,7 @@ namespace TwitterHelper.Api.Controllers
                 int count = 100;
                 DateTimeReference refTime;
 
-                while (!(tweetsCount >= 150 || count == 0))
+                while (!(tweetsCount >= 1500 || count == 0))
                 {
                     refTime = await context.DateTimeReferences.FirstAsync();
                     this.helper.WaitCalculatedTime(100, refTime.TimelinesTime);
