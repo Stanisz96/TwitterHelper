@@ -161,17 +161,21 @@ namespace TwitterHelper.Api.Tools
 
             if (tweetRefType == "retweeted" && metaData.UserType == "A")
             {
-                if (DateTime.Compare(convertedTweetTime, metaData.OldestRetweetData) < 0)
-                    metaData.OldestRetweetData = convertedTweetTime;
+                if (DateTime.Compare(convertedTweetTime, metaData.OldestRetweetDate) < 0)
+                    metaData.OldestRetweetDate = convertedTweetTime;
             }
 
             if (tweetRefType == "tweeted" && metaData.UserType == "B")
             {
                 shouldSaveTweet = false;
+
+                if (DateTime.Compare(convertedTweetTime, metaData.OldestTweetData) < 0)
+                    metaData.OldestTweetData = convertedTweetTime;
+
                 foreach (var follower in metaData.Followers)
                 {
                     MetaData metaDataA = GetMetaData(follower);
-                    if (DateTime.Compare(convertedTweetTime, metaDataA.OldestRetweetData) > 0)
+                    if (DateTime.Compare(convertedTweetTime, metaDataA.OldestRetweetDate) > 0)
                     {
                         shouldSaveTweet = true;
                         break;
