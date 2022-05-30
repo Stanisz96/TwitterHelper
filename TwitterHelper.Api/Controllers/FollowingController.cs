@@ -112,8 +112,13 @@ namespace TwitterHelper.Api.Controllers
 
             foreach (string userId in metaData.Following)
             {
+                MetaData metaDataFollowing = this.helper.GetMetaData(userId);
                 this.twitterUtils.Configurate("oauth1", $"/users/{userId}/tweets", Method.Get);
                 this.twitterUtils.RemoveParameter("pagination_token");
+                this.twitterUtils.RemoveParameter("start_time");
+
+                this.twitterUtils.AddParameter("start_time", 
+                        this.helper.ToTwitterTimeStamp(metaDataFollowing.OldestTweetDate));
 
                 int tweetsCount = 0;
                 int count = 100;
