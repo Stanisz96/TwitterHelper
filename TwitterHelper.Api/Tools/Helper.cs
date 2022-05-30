@@ -209,5 +209,30 @@ namespace TwitterHelper.Api.Tools
 
             return DateTime.Compare(followerDate, followingDate) < 0;
         }
+
+        public (DateTime, DateTime) GetRandomTimeWindow(int windowLengthMinute)
+        {
+            int randomHour = new Random().Next(0, 23);
+            int randomMinuteStart = new Random().Next(0, 59 - windowLengthMinute);
+            int randomMinuteEnd = randomMinuteStart + windowLengthMinute;
+            int randomSecond = new Random().Next(0, 59);
+
+            DateTime startTime = new(
+                        DateTime.Now.Year,
+                        DateTime.Now.Month,
+                        DateTime.Now.Day - 1,
+                        randomHour,
+                        randomMinuteStart,
+                        randomSecond);
+            DateTime endTime = new(
+                        DateTime.Now.Year,
+                        DateTime.Now.Month,
+                        DateTime.Now.Day - 1,
+                        randomHour,
+                        randomMinuteEnd,
+                        randomSecond);
+
+            return (startTime, endTime);
+        }
     }
 }
