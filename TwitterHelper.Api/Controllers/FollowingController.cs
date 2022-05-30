@@ -67,7 +67,12 @@ namespace TwitterHelper.Api.Controllers
                 bool shouldSaveUser = true;
 
                 if (isUserIdDuplicate)
-                    shouldSaveUser = this.helper.IsFollowerOldestRetweetOlderThenFollowingOldestTweet(id, user.Id);
+                {
+                    shouldSaveUser = false;
+                    this.helper.SaveFollowingUserToUserMetaData(id, user.Id);
+                    this.helper.SaveFollowerUserToUserMetaData(id, user.Id);
+                }
+
                 if (isProtected)
                     shouldSaveUser = false;
 
@@ -113,6 +118,12 @@ namespace TwitterHelper.Api.Controllers
             foreach (string userId in metaData.Following)
             {
                 MetaData metaDataFollowing = this.helper.GetMetaData(userId);
+
+                bool shouldSaveTweets = this.helper.IsFollowerOldestRetweetOlderThenFollowingOldestTweet(id, userId);
+
+                if (!shouldSaveTweets)
+                    break;
+
                 this.twitterUtils.Configurate("oauth1", $"/users/{userId}/tweets", Method.Get);
                 this.twitterUtils.RemoveParameter("pagination_token");
                 this.twitterUtils.RemoveParameter("start_time");
