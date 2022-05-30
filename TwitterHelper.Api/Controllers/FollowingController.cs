@@ -44,7 +44,7 @@ namespace TwitterHelper.Api.Controllers
             List<string> parametersValue = await this.helper.GetContextParameterValues(2, this.context);
 
             if (parametersValue.Count != 0)
-                this.twitterUtils.AddParameters("user.fields", parametersValue);
+                this.twitterUtils.AddValuesForParameter("user.fields", parametersValue);
 
             this.twitterUtils.AddParameter("max_results", "300");
 
@@ -101,7 +101,7 @@ namespace TwitterHelper.Api.Controllers
             List<string> parametersValue = await this.helper.GetContextParameterValues(4, this.context);
 
             if (parametersValue.Count != 0)
-                this.twitterUtils.AddParameters("tweet.fields", parametersValue);
+                this.twitterUtils.AddValuesForParameter("tweet.fields", parametersValue);
 
             this.twitterUtils.AddParameter("max_results", "100");
             this.twitterUtils.AddParameter("expansions", "referenced_tweets.id");

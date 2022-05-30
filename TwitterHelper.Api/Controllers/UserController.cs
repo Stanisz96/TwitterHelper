@@ -48,7 +48,7 @@ namespace TwitterHelper.Api.Controllers
             List<string> parametersValue = await this.helper.GetContextParameterValues(1, this.context);
 
             if (parametersValue.Count != 0)
-                this.twitterUtils.AddParameters("user.fields", parametersValue);
+                this.twitterUtils.AddValuesForParameter("user.fields", parametersValue);
 
             var refTime = await context.DateTimeReferences.FirstAsync();
             this.helper.WaitCalculatedTime(20, refTime.UsersLookupTime);
@@ -83,7 +83,7 @@ namespace TwitterHelper.Api.Controllers
             List<string> parametersValue = await this.helper.GetContextParameterValues(3, this.context);
 
             if (parametersValue.Count != 0)
-                this.twitterUtils.AddParameters("tweet.fields", parametersValue);
+                this.twitterUtils.AddValuesForParameter("tweet.fields", parametersValue);
 
             this.twitterUtils.AddParameter("max_results", "100");
             this.twitterUtils.AddParameter("expansions", "referenced_tweets.id");
@@ -148,11 +148,12 @@ namespace TwitterHelper.Api.Controllers
             (DateTime startTime, DateTime endTime) = this.helper.GetRandomTimeWindow(10);
 
             this.twitterUtils.AddQuery("lang:en the -the");
-            this.twitterUtils.AddParameter("start_time", this.helper.ToTwitterTimeStamp(startTime));
-            this.twitterUtils.AddParameter("end_time", this.helper.ToTwitterTimeStamp(endTime));
-            this.twitterUtils.AddParameter("max_results", "100");
+            this.twitterUtils.AddParameters(("start_time", this.helper.ToTwitterTimeStamp(startTime)),
+                                            ("end_time", this.helper.ToTwitterTimeStamp(endTime)),
+                                            ("max_results", "100"));
+
             if (parametersTweetsValue.Count != 0)
-                this.twitterUtils.AddParameters("tweet.fields", parametersTweetsValue);
+                this.twitterUtils.AddValuesForParameter("tweet.fields", parametersTweetsValue);
 
             var refTime = await context.DateTimeReferences.FirstAsync();
             this.helper.WaitCalculatedTime(12, refTime.TweetsSearchTime);
@@ -180,7 +181,7 @@ namespace TwitterHelper.Api.Controllers
                     this.twitterUtils.AddParameter("max_results", "100");
 
                     if (parametersTweetsValue.Count != 0)
-                        this.twitterUtils.AddParameters("tweet.fields", parametersTweetsValue);
+                        this.twitterUtils.AddValuesForParameter("tweet.fields", parametersTweetsValue);
 
                     this.helper.WaitCalculatedTime(100, refTime.TimelinesTime);
                     response = await this.twitterUtils.Client.ExecuteAsync(this.twitterUtils.Request);

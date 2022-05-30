@@ -76,7 +76,7 @@ namespace TwitterHelper.Api.Models
             this.Request.AddOrUpdateParameter("query", queryValue, ParameterType.QueryString);
         }
 
-        public void AddParameters(string parameterName, List<string> parameterValues)
+        public void AddValuesForParameter(string parameterName, List<string> parameterValues)
         {
             var strValues = "";
             for (int i = 0; i < parameterValues.Count; i++)
@@ -86,6 +86,15 @@ namespace TwitterHelper.Api.Models
             }
 
             this.Request.AddOrUpdateParameter(parameterName, strValues);
+        }
+
+        public void AddParameters(params (string, string)[] parameters)
+        {
+            foreach (var parameter in parameters)
+            {
+                (string parameterName, string parameterValue) = parameter;
+                this.Request.AddOrUpdateParameter(parameterName, parameterValue);
+            }
         }
 
         public void RemoveParameters()
