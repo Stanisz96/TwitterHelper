@@ -46,7 +46,7 @@ namespace TwitterHelper.Api.Controllers
             if (parametersValue.Count != 0)
                 this.twitterUtils.AddValuesForParameter("user.fields", parametersValue);
 
-            this.twitterUtils.AddParameter("max_results", "300");
+            this.twitterUtils.AddParameter("max_results", "10");
 
             var refTime = await context.DateTimeReferences.FirstAsync();
             this.helper.WaitCalculatedTime(1, refTime.FollowsTime);
@@ -126,16 +126,16 @@ namespace TwitterHelper.Api.Controllers
 
                 this.twitterUtils.Configurate("oauth1", $"/users/{userId}/tweets", Method.Get);
                 this.twitterUtils.RemoveParameter("pagination_token");
-                this.twitterUtils.RemoveParameter("start_time");
+                this.twitterUtils.RemoveParameter("end_time");
 
-                this.twitterUtils.AddParameter("start_time", 
+                this.twitterUtils.AddParameter("end_time", 
                         this.helper.ToTwitterTimeStamp(metaDataFollowing.OldestTweetDate));
 
                 int tweetsCount = 0;
                 int count = 100;
                 DateTimeReference refTime;
 
-                while (!(tweetsCount >= 1500 || count == 0))
+                while (!(tweetsCount >= 150 || count == 0))
                 {
                     refTime = await context.DateTimeReferences.FirstAsync();
                     this.helper.WaitCalculatedTime(100, refTime.TimelinesTime);
