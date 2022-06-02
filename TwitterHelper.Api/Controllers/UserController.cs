@@ -150,7 +150,7 @@ namespace TwitterHelper.Api.Controllers
             this.twitterUtils.AddQuery("lang:en the -the");
             this.twitterUtils.AddParameters(("start_time", this.helper.ToTwitterTimeStamp(startTime)),
                                             ("end_time", this.helper.ToTwitterTimeStamp(endTime)),
-                                            ("max_results", "20"));
+                                            ("max_results", "50"));
 
             if (parametersTweetsValue.Count != 0)
                 this.twitterUtils.AddValuesForParameter("tweet.fields", parametersTweetsValue);
