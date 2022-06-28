@@ -22,7 +22,7 @@ namespace TwitterHelper.Api.Tools
         public void SaveFollowingUserToUserMetaData(string followerId, string followingId);
         public void SaveFollowerUserToUserMetaData(string followerId, string followingId);
         public MetaData GetMetaData(string userId);
-        public bool IsFollowerOldestRetweetOlderThenFollowingOldestTweet(string followerId, string followingId);
+        public bool IsFollowerOldestTweetOlderThenFollowingOldestTweet(string followerId, string followingId);
         public (DateTime, DateTime) GetRandomTimeWindow(int windowLengthMinute);
 
     }

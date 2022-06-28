@@ -119,7 +119,7 @@ namespace TwitterHelper.Api.Controllers
             {
                 MetaData metaDataFollowing = this.helper.GetMetaData(userId);
 
-                bool shouldSaveTweets = this.helper.IsFollowerOldestRetweetOlderThenFollowingOldestTweet(id, userId);
+                bool shouldSaveTweets = this.helper.IsFollowerOldestTweetOlderThenFollowingOldestTweet(id, userId);
 
                 if (!shouldSaveTweets)
                     break;
@@ -129,7 +129,7 @@ namespace TwitterHelper.Api.Controllers
                 this.twitterUtils.RemoveParameter("end_time");
 
                 this.twitterUtils.AddParameter("end_time", 
-                        this.helper.ToTwitterTimeStamp(metaDataFollowing.OldestTweetDate));
+                        this.helper.ToTwitterTimeStamp(metaDataFollowing.OldestAnyTweetDate));
 
                 int tweetsCount = 0;
                 int count = 100;

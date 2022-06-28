@@ -159,23 +159,23 @@ namespace TwitterHelper.Api.Tools
             var tweetRefType = tweet.Referenced_tweets.FirstOrDefault().Type;
             shouldSaveTweet = true;
 
-            if (tweetRefType == "retweeted" && metaData.UserType == "A")
+            if (metaData.UserType == "A")
             {
-                if (DateTime.Compare(convertedTweetTime, metaData.OldestRetweetDate) < 0)
-                    metaData.OldestRetweetDate = convertedTweetTime;
+                if (DateTime.Compare(convertedTweetTime, metaData.OldestAnyTweetDate) < 0)
+                    metaData.OldestAnyTweetDate = convertedTweetTime;
             }
 
-            if (tweetRefType == "tweeted" && metaData.UserType == "B")
+            if (metaData.UserType == "B")
             {
                 shouldSaveTweet = false;
 
-                if (DateTime.Compare(convertedTweetTime, metaData.OldestTweetDate) < 0)
-                    metaData.OldestTweetDate = convertedTweetTime;
+                if (DateTime.Compare(convertedTweetTime, metaData.OldestAnyTweetDate) < 0)
+                    metaData.OldestAnyTweetDate = convertedTweetTime;
 
                 foreach (var follower in metaData.Followers)
                 {
                     MetaData metaDataFollower = GetMetaData(follower);
-                    if (DateTime.Compare(convertedTweetTime, metaDataFollower.OldestRetweetDate) > 0)
+                    if (DateTime.Compare(convertedTweetTime, metaDataFollower.OldestAnyTweetDate) > 0)
                     {
                         shouldSaveTweet = true;
                         break;
@@ -200,12 +200,12 @@ namespace TwitterHelper.Api.Tools
             SaveMetaData(followingId, Following);
         }
 
-        public bool IsFollowerOldestRetweetOlderThenFollowingOldestTweet(string followerId, string followingId)
+        public bool IsFollowerOldestTweetOlderThenFollowingOldestTweet(string followerId, string followingId)
         {
             MetaData metaDataFollower = GetMetaData(followerId);
             MetaData metaDataFollowing = GetMetaData(followingId);
-            var followerDate = metaDataFollower.OldestRetweetDate;
-            var followingDate = metaDataFollowing.OldestTweetDate;
+            var followerDate = metaDataFollower.OldestAnyTweetDate;
+            var followingDate = metaDataFollowing.OldestAnyTweetDate;
 
             return DateTime.Compare(followerDate, followingDate) < 0;
         }
