@@ -44,6 +44,8 @@ namespace TwitterHelper.Api.Tools
                 if (!shouldContinue)
                     break;
 
+                tweet.DownloadedDateTime = DateTime.Now;
+
                 var tweetRefType = tweet.Referenced_tweets.FirstOrDefault().Type;
                 string tweetTypePath = Path.Combine(Globals.USERS_PATH,$"{userId}\\tweets\\{tweetRefType}");
                 string tweetDataPath = Path.Combine(tweetTypePath, $"{tweet.Id}.json");

@@ -17,6 +17,7 @@ namespace TwitterHelper.Api.Models
         public JObject Entities { get; set; }
         public TweetPublicMetrics Public_metrics { get; set; }
         public List<ReferencedTweet> Referenced_tweets { get; set; }
+        public DateTime DownloadedDateTime { get; set; }
 
     }
 }
