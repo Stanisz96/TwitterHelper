@@ -81,12 +81,13 @@ namespace TwitterHelper.Api.Controllers
             this.twitterUtils.Configurate("oauth1", $"/users/{id}/tweets", Method.Get);
 
             List<string> parametersValue = await this.helper.GetContextParameterValues(3, this.context);
+            List<string> expansionsList = new() { "referenced_tweets.id", "entities.mentions.username" };
 
             if (parametersValue.Count != 0)
                 this.twitterUtils.AddValuesForParameter("tweet.fields", parametersValue);
 
             this.twitterUtils.AddParameter("max_results", "100");
-            this.twitterUtils.AddParameter("expansions", "referenced_tweets.id");
+            this.twitterUtils.AddValuesForParameter("expansions", expansionsList);
 
 
 
