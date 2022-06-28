@@ -10,6 +10,7 @@ namespace TwitterHelper.Api.Models
     {
         public string Author_id { get; set; }
         public string Id { get; set; }
+        public string Conversation_id { get; set; }
         public string Text { get; set; }
         public string Created_at { get; set; }
         public string Lang { get; set; }
