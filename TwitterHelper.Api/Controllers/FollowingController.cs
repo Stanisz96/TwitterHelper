@@ -104,13 +104,12 @@ namespace TwitterHelper.Api.Controllers
         public async Task<IActionResult> Tweets(string id)
         {
             List<string> parametersValue = await this.helper.GetContextParameterValues(4, this.context);
-            List<string> expansionsList = new(){"referenced_tweets.id","entities.mentions.username"};
 
             if (parametersValue.Count != 0)
                 this.twitterUtils.AddValuesForParameter("tweet.fields", parametersValue);
 
             this.twitterUtils.AddParameter("max_results", "100");
-            this.twitterUtils.AddValuesForParameter("expansions", expansionsList);
+            this.twitterUtils.AddParameter("expansions", "referenced_tweets.id");
 
             int allTweetsCount = 0;
 
